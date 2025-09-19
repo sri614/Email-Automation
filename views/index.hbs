@@ -1,17 +1,20 @@
-<div class="flex-bn header__menu" style="position: relative;">
-  <p id="save-status" class="disable">Note: drag & drop to change order...</p>
-  <h1>Create lists</h1>
+<div class="header__menu" style="position: relative;">
+  
 
-  <div class="flex-bn">
-    <div class="date-picker-container" style="margin-right: 20px;">
-      <label for="globalDatePicker">Set Date for All Lists:</label>
-      <input type="date" id="globalDatePicker" class="date-picker-input" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+  <h1 style="text-align: center; margin: 20px 0 20px 0; font-size: 36px; font-weight: 600;">
+    <i class="fas fa-list-ul" style="color: #067be1; margin-right: 15px;"></i>List Creator
+  </h1>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <label for="globalDatePicker" style="font-weight: 600; color: #333; font-size: 15px;">Set Date for All Lists:</label>
+      <input type="date" id="globalDatePicker" class="date-picker-input" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; background-color: white;">
     </div>
 
-    <div class="filter-container mb-20">
-      <div class="filter-dropdown">
-        <label for="daysFilter">Days:</label>
-        <select id="daysFilter" class="filter-select">
+    <div style="display: flex; align-items: center; gap: 25px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label for="daysFilter" style="font-weight: 600; color: #333; font-size: 15px;">Days:</label>
+        <select id="daysFilter" class="filter-select" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; min-width: 140px; background-color: white;">
           <option value="all">All Days</option>
           <option value="today">Today</option>
           <option value="t+1">T+1 Days</option>
@@ -20,19 +23,20 @@
         </select>
       </div>
 
-      <div class="filter-dropdown">
-        <label for="modeFilter">List Mode:</label>
-        <select id="modeFilter" class="filter-select">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label for="modeFilter" style="font-weight: 600; color: #333; font-size: 15px;white-space: nowrap;">List Mode:</label>
+        <select id="modeFilter" class="filter-select" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; min-width: 170px; background-color: white;">
           <option value="BAU">BAU (Default)</option>
           <option value="re-engagement">Re-engagement</option>
           <option value="re-activation">Re-activation</option>
         </select>
       </div>
-    </div>
 
-    <button id="openFormBtn" class="btn-primary" type="button">Add Lists</button>
-    <button id="runBtn" class="btn-primary" type="button">Run Automation</button>
+      <button id="openFormBtn" class="btn-primary" type="button" style="padding: 14px 32px; font-size: 16px; font-weight: 600; border-radius: 8px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s;">Add Lists</button>
+      <button id="runBtn" class="btn-primary" type="button" style="padding: 14px 32px; font-size: 16px; font-weight: 600; border-radius: 8px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s;">Run Automation</button>
+    </div>
   </div>
+  <p id="save-status" class="disable" style="position: absolute; top: 180px; left: 0;">Note: drag & drop to change order...</p>
 </div>
 
 <h4 class="emailCount mb-12">{{emails.length}} Lists</h4>

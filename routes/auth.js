@@ -18,7 +18,12 @@ router.post('/login', (req, res) => {
     return res.redirect('/');
   }
 
-  res.send('Login failed: Invalid email or password');
+  res.render('login', {
+    pageTitle: 'Login',
+    activePage: 'login',
+    error: 'Login failed: Invalid email or password',
+    email: email
+  });
 });
 
 // Logout route

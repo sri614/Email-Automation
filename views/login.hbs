@@ -34,6 +34,7 @@
       animation: fadeIn 0.5s ease-out forwards;
       opacity: 0;
       transform: scale(0.95);
+      padding: 30px;
     }
 
     @keyframes fadeIn {
@@ -43,37 +44,9 @@
       }
     }
 
-    .container-login .forms {
-      display: flex;
-      align-items: center;
-      height: 440px;
-      width: 200%;
-      transition: height 0.2s ease;
-    }
-
     .container-login .form {
-      width: 50%;
-      padding: 30px;
+      width: 100%;
       background-color: #fff;
-      transition: margin-left 0.18s ease, opacity 0.15s ease;
-    }
-
-    .container-login.active .login {
-      margin-left: -50%;
-      opacity: 0;
-    }
-
-    .container-login .signup {
-      opacity: 0;
-    }
-
-    .container-login.active .signup {
-      opacity: 1;
-      transition-delay: 0.18s;
-    }
-
-    .container-login.active .forms {
-      height: 600px;
     }
 
     .form .title {
@@ -213,24 +186,20 @@
       }
     }
 
+    /* Error shake animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
     /* Responsive adjustments */
     @media (max-width: 500px) {
       .container-login {
         margin: 0;
-      }
-      
-      .container-login .forms {
-        height: 400px;
-      }
-      
-      .container-login.active .forms {
-        height: 500px;
-      }
-      
-      .container-login .form {
         padding: 20px;
       }
-      
+
       .form .title {
         font-size: 24px;
       }
@@ -239,14 +208,19 @@
 </head>
 <body class="login-page">
   <div class="container-login">
-    <div class="forms">
       <!-- Login Form -->
       <div class="form login">
         <span class="title">Login</span>
-        
+
+        {{#if error}}
+        <div class="error-message" style="background-color: #fee; color: #c33; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center; animation: shake 0.3s;">
+          {{error}}
+        </div>
+        {{/if}}
+
         <form action="/login" method="POST">
           <div class="input-field" style="animation-delay: 0.1s">
-            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="email" name="email" placeholder="Enter your email" value="{{email}}" required>
             <i class="fas fa-envelope icon"></i>
           </div>
           <div class="input-field" style="animation-delay: 0.2s">
@@ -262,60 +236,17 @@
           </div>
         </form>
         
-        <div class="login-signup" style="animation-delay: 0.5s">
-          <span class="text">Not a member?
-            <a href="#" class="text signup-link">Signup now</a>
-          </span>
+        <div class="login-signup" style="animation-delay: 0.5s; color: #666; font-size: 14px;">
+          <span class="text">For login credentials, please contact the administrator.</span>
         </div>
       </div>
-
-      <!-- Signup Form -->
-      <div class="form signup">
-        <span class="title">Registration</span>
-        
-        <form action="#">
-          <div class="input-field">
-            <input type="text" placeholder="Enter your name" required>
-            <i class="fas fa-user icon"></i>
-          </div>
-          <div class="input-field">
-            <input type="email" placeholder="Enter your email" required>
-            <i class="fas fa-envelope icon"></i>
-          </div>
-          <div class="input-field">
-            <input type="password" class="password" placeholder="Create a password" required>
-            <i class="fas fa-lock icon"></i>
-          </div>
-          <div class="input-field">
-            <input type="password" class="password" placeholder="Confirm password" required>
-            <i class="fas fa-lock icon"></i>
-            <i class="fas fa-eye-slash showHidePw"></i>
-          </div>
-          
-          
-          
-          <div class="input-field button">
-            <input type="submit" value="Signup">
-          </div>
-        </form>
-        
-        <div class="login-signup">
-          <span class="text">Already a member?
-            <a href="#" class="text login-link">Login now</a>
-          </span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const containerLogin = document.querySelector(".container-login");
       const pwShowHide = document.querySelectorAll(".showHidePw");
       const pwFields = document.querySelectorAll(".password");
-      const signUpLink = document.querySelector(".signup-link");
-      const loginLink = document.querySelector(".login-link");
-      
+
       // Show/hide password
       pwShowHide.forEach(eyeIcon => {
         eyeIcon.addEventListener("click", () => {
@@ -329,17 +260,6 @@
             }
           });
         });
-      });
-      
-      // Switch between forms
-      signUpLink?.addEventListener("click", (e) => {
-        e.preventDefault();
-        containerLogin.classList.add("active");
-      });
-      
-      loginLink?.addEventListener("click", (e) => {
-        e.preventDefault();
-        containerLogin.classList.remove("active");
       });
       
       // Animate input fields
