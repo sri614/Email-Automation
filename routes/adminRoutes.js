@@ -99,6 +99,35 @@ router.put("/email/:id/edit", ensureAuthenticated, async (req, res) => {
   }
 });
 
+// ✔️ UPDATE DATE ONLY (protected)
+router.put("/email/:id/update-date", ensureAuthenticated, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ msg: "Date is required" });
+    }
+
+    await Segmentation.findByIdAndUpdate(
+      id,
+      { date: new Date(date) },
+      { new: true }
+    )
+      .then((updatedEmail) => {
+        console.log("Date updated for:", id);
+        res.status(200).json({ success: true, email: updatedEmail });
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({ msg: "Unable to update the date" });
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Unable to update the date" });
+  }
+});
+
 // ✔️ DELETE (protected)
 router.delete("/email/:id", ensureAuthenticated, async (req, res) => {
   try {

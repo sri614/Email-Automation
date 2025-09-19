@@ -121,7 +121,7 @@
                         <option value="tplus2">T+2 Days</option>
                         <option value="tplus3">T+3 Days</option>
                         <option value="tplus4">T+4 Days</option>
-                        <option value="all">All Emails</option>
+                        <option value="all" selected>All Emails</option>
                     </select>
                 </div>
 
@@ -194,7 +194,7 @@
                         <option value="tplus2">T+2 Days</option>
                         <option value="tplus3">T+3 Days</option>
                         <option value="tplus4">T+4 Days</option>
-                        <option value="all">All Associations</option>
+                        <option value="all" selected>All Associations</option>
                     </select>
                 </div>
                 <button id="create-associations"
@@ -1130,14 +1130,14 @@
                 filterLists('all');
             }
 
-            // Set default filter for associations  
+            // Set default filter for associations
             if (document.getElementById('association-filter')) {
-                document.getElementById('association-filter').value = 'today';
+                document.getElementById('association-filter').value = 'all';
             }
 
             // Set default filter for emails
             if (document.getElementById('email-filter')) {
-                document.getElementById('email-filter').value = 'today';
+                document.getElementById('email-filter').value = 'all';
             }
         }, 100);
     </script>

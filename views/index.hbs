@@ -3,6 +3,11 @@
   <h1>Create lists</h1>
 
   <div class="flex-bn">
+    <div class="date-picker-container" style="margin-right: 20px;">
+      <label for="globalDatePicker">Set Date for All Lists:</label>
+      <input type="date" id="globalDatePicker" class="date-picker-input" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
     <div class="filter-container mb-20">
       <div class="filter-dropdown">
         <label for="daysFilter">Days:</label>
@@ -65,7 +70,7 @@
             height="14"></button>
 
         <form action="/email/{{this._id}}?_method=DELETE" method="post">
-          <button type="submit" id="delete-btn" onclick="return confirm('Are you sure?')" title="Delete"><img
+          <button type="button" id="delete-btn" onclick="event.preventDefault(); showConfirm('Are you sure you want to delete this list?', (confirmed) => { if(confirmed) this.closest('form').submit(); }, 'Delete List')" title="Delete"><img
               src="/assets/delete-svgrepo-com.svg" width="14" height="14"></button>
         </form>
       </div>
@@ -157,7 +162,311 @@
 <h3>No Lists created Today</h3>
 {{/if}}
 
+<!-- Custom Dialog Box -->
+<div id="customDialog" class="custom-dialog-overlay" style="display: none;">
+  <div class="custom-dialog">
+    <div class="custom-dialog-header">
+      <h3 id="dialogTitle">Notification</h3>
+      <button class="custom-dialog-close" onclick="closeDialog()">&times;</button>
+    </div>
+    <div class="custom-dialog-body">
+      <div id="dialogIcon" class="dialog-icon"></div>
+      <p id="dialogMessage">Message goes here</p>
+    </div>
+    <div class="custom-dialog-footer">
+      <button id="dialogConfirmBtn" class="dialog-btn dialog-btn-primary" onclick="closeDialog()">OK</button>
+      <button id="dialogCancelBtn" class="dialog-btn dialog-btn-secondary" onclick="closeDialog()" style="display: none;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Custom Dialog Styles */
+.custom-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: not-allowed;
+}
+
+.custom-dialog-overlay.show {
+  opacity: 1;
+}
+
+.custom-dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 450px;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  animation: dialogSlideIn 0.3s ease forwards;
+  cursor: default;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    transform: translateY(-30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.custom-dialog-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.custom-dialog-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.custom-dialog-close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.custom-dialog-body {
+  padding: 24px;
+  text-align: center;
+}
+
+.dialog-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.dialog-icon.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.dialog-icon.success::before {
+  content: "✓";
+}
+
+.dialog-icon.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.dialog-icon.error::before {
+  content: "✕";
+}
+
+.dialog-icon.warning {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.dialog-icon.warning::before {
+  content: "!";
+}
+
+.dialog-icon.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dialog-icon.info::before {
+  content: "i";
+  font-weight: bold;
+  font-style: italic;
+}
+
+#dialogMessage {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.custom-dialog-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dialog-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  outline: none;
+}
+
+.dialog-btn-primary {
+  background: #1654a0;
+  color: white;
+}
+
+.dialog-btn-primary:hover {
+  background: #1e5ba8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 84, 160, 0.3);
+}
+
+.dialog-btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.dialog-btn-secondary:hover {
+  background: #d1d5db;
+}
+
+/* Confirm dialog specific styles */
+.confirm-dialog .custom-dialog-body {
+  text-align: left;
+}
+
+.confirm-dialog .dialog-icon {
+  margin: 0 auto 16px;
+}
+</style>
+
 <script>
+  // Custom Dialog Functions
+  let dialogCallback = null;
+
+  function showDialog(message, type = 'info', title = null) {
+    const dialog = document.getElementById('customDialog');
+    const dialogTitle = document.getElementById('dialogTitle');
+    const dialogMessage = document.getElementById('dialogMessage');
+    const dialogIcon = document.getElementById('dialogIcon');
+    const confirmBtn = document.getElementById('dialogConfirmBtn');
+    const cancelBtn = document.getElementById('dialogCancelBtn');
+
+    // Set title
+    dialogTitle.textContent = title || (type === 'success' ? 'Success' : type === 'error' ? 'Error' : type === 'warning' ? 'Warning' : 'Information');
+
+    // Set message
+    dialogMessage.innerHTML = message.replace(/\n/g, '<br>');
+
+    // Set icon type
+    dialogIcon.className = 'dialog-icon ' + type;
+
+    // Hide cancel button for notifications
+    cancelBtn.style.display = 'none';
+    confirmBtn.textContent = 'OK';
+
+    // Show dialog
+    dialog.style.display = 'flex';
+    setTimeout(() => dialog.classList.add('show'), 10);
+  }
+
+  function showConfirm(message, callback, title = 'Confirm') {
+    const dialog = document.getElementById('customDialog');
+    const dialogTitle = document.getElementById('dialogTitle');
+    const dialogMessage = document.getElementById('dialogMessage');
+    const dialogIcon = document.getElementById('dialogIcon');
+    const confirmBtn = document.getElementById('dialogConfirmBtn');
+    const cancelBtn = document.getElementById('dialogCancelBtn');
+
+    // Set title
+    dialogTitle.textContent = title;
+
+    // Set message
+    dialogMessage.innerHTML = message.replace(/\n/g, '<br>');
+
+    // Set icon type
+    dialogIcon.className = 'dialog-icon warning';
+
+    // Show both buttons
+    cancelBtn.style.display = 'inline-block';
+    confirmBtn.textContent = 'Confirm';
+
+    // Set callback
+    dialogCallback = callback;
+
+    // Update confirm button onclick
+    confirmBtn.onclick = function() {
+      closeDialog();
+      if (dialogCallback) {
+        dialogCallback(true);
+        dialogCallback = null;
+      }
+    };
+
+    // Update cancel button onclick
+    cancelBtn.onclick = function() {
+      closeDialog();
+      if (dialogCallback) {
+        dialogCallback(false);
+        dialogCallback = null;
+      }
+    };
+
+    // Show dialog
+    dialog.style.display = 'flex';
+    setTimeout(() => dialog.classList.add('show'), 10);
+  }
+
+  function closeDialog() {
+    const dialog = document.getElementById('customDialog');
+    dialog.classList.remove('show');
+    setTimeout(() => {
+      dialog.style.display = 'none';
+      dialogCallback = null;
+    }, 300);
+  }
+
+  // Prevent closing dialog on overlay click - only allow closing via buttons
+  document.addEventListener('DOMContentLoaded', function() {
+    const dialog = document.getElementById('customDialog');
+    // Remove the overlay click listener - dialog can only be closed via buttons
+    dialog.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent any click propagation
+    });
+  });
+
   // 🔄 Reusable Drag-and-Drop SortableJS
   function initDragAndDrop() {
     const list = document.getElementById('segmentation-list');
@@ -198,6 +507,121 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     initDragAndDrop(); // Initialize drag and drop
+
+    // Global date picker functionality
+    const globalDatePicker = document.getElementById('globalDatePicker');
+    if (globalDatePicker) {
+      globalDatePicker.addEventListener('change', async function() {
+        const newDate = this.value;
+        if (!newDate) return;
+
+        // Get current filter values
+        const modeFilter = document.getElementById('modeFilter');
+        const selectedMode = modeFilter ? modeFilter.value.toLowerCase() : 'bau';
+
+        // Get only visible cards (respecting current filters)
+        const visibleCards = document.querySelectorAll('.card[style="display: block;"], .card:not([style])');
+
+        if (visibleCards.length === 0) {
+          showDialog('No lists are currently visible to update.', 'warning');
+          this.value = '';
+          return;
+        }
+
+        // Build confirmation message based on active filter
+        let filterDescription = '';
+        if (selectedMode === 're-engagement') {
+          filterDescription = ' (Re-engagement lists only)';
+        } else if (selectedMode === 're-activation') {
+          filterDescription = ' (Re-activation lists only)';
+        } else if (selectedMode === 'bau') {
+          filterDescription = ' (BAU lists only)';
+        }
+
+        const datePickerElement = this;
+        showConfirm(
+          `Are you sure you want to update <strong>${visibleCards.length}</strong> visible list dates<strong>${filterDescription}</strong> to <strong>${newDate}</strong>?`,
+          (confirmed) => {
+            if (!confirmed) {
+              datePickerElement.value = '';
+              return;
+            }
+            // Continue with the update process
+            updateListDates();
+          },
+          'Update List Dates'
+        );
+
+        async function updateListDates() {
+
+        const updatePromises = [];
+        let updatedCount = 0;
+
+        visibleCards.forEach(card => {
+          // Double-check the card matches the current mode filter
+          const campaignElement = card.querySelector('.campaign');
+          const cardCampaign = campaignElement ? campaignElement.textContent.toLowerCase() : '';
+
+          let shouldUpdate = false;
+          if (selectedMode === 'bau') {
+            shouldUpdate = !cardCampaign.includes('re-engagement') && !cardCampaign.includes('re-activation');
+          } else {
+            shouldUpdate = cardCampaign.includes(selectedMode);
+          }
+
+          if (shouldUpdate) {
+            const cardId = card.dataset.id;
+            const dateElement = card.querySelector('.js-date');
+
+            // Update visual display immediately
+            if (dateElement) {
+              dateElement.dataset.iso = newDate;
+              const date = new Date(newDate);
+              dateElement.textContent = date.toLocaleDateString("en-GB", {
+                day: "numeric", month: "short", year: "numeric"
+              });
+            }
+
+            // Prepare update request
+            updatePromises.push(
+              fetch(`/email/${cardId}/update-date`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: newDate })
+              })
+            );
+
+            updatedCount++;
+          }
+        });
+
+          // Send all update requests
+          if (updatePromises.length > 0) {
+            try {
+              await Promise.all(updatePromises);
+              showDialog(
+                `Successfully updated <strong>${updatedCount}</strong> ${selectedMode.toUpperCase()} list dates to <strong>${newDate}</strong>`,
+                'success',
+                'Dates Updated Successfully'
+              );
+
+              // Re-apply filters after date update
+              if (typeof applyFilters === 'function') {
+                applyFilters();
+              }
+            } catch (error) {
+              console.error('Error updating dates:', error);
+              showDialog('Some dates could not be updated. Please refresh the page.', 'error', 'Update Failed');
+            }
+          } else {
+            showDialog('No lists matched the current filter criteria.', 'info');
+          }
+
+          // Clear the date picker
+          datePickerElement.value = '';
+        }
+      });
+    }
 
     // Format dates
     document.querySelectorAll(".js-date").forEach(el => {
@@ -337,14 +761,18 @@
 
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error(`No campaigns found for:\n• Date: ${daysFilter.replace('t+', 'T+')}\n• Mode: ${modeFilter}`);
+            throw new Error(`No campaigns found for:<br>• Date: ${daysFilter.replace('t+', 'T+')}<br>• Mode: ${modeFilter}`);
           }
           throw new Error(result.error || 'Failed to create lists');
         }
 
-        alert(`Successfully processed ${result.count} campaigns matching:\n• Date: ${daysFilter.replace('t+', 'T+')}\n• Mode: ${modeFilter}`);
+        showDialog(
+          `Successfully processed <strong>${result.count}</strong> campaigns matching:<br>• Date: <strong>${daysFilter.replace('t+', 'T+')}</strong><br>• Mode: <strong>${modeFilter}</strong>`,
+          'success',
+          'Automation Complete'
+        );
       } catch (error) {
-        alert(error.message);
+        showDialog(error.message, 'error', 'Automation Failed');
       } finally {
         runBtn.disabled = false;
         runBtn.textContent = originalText;

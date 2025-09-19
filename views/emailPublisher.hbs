@@ -658,7 +658,7 @@
             <div class="filter-controls">
               <select class="form-select" id="dateFilter">
                 <option value="today">Today</option>
-                <option value="t1">Tomorrow (T+1)</option>
+                <option value="t1">T+1</option>
                 <option value="t2">T+2</option>
                 <option value="t3">T+3</option>
                 <option value="t4">T+4</option>
@@ -850,6 +850,7 @@
 
       if (selectedEmailIds.size === 0) {
         selectedEmailsContainer.innerHTML = '<div class="text-center text-muted">No emails selected</div>';
+        emailIdsInput.value = '';
         selectedBadge.textContent = '0';
         selectedCount.textContent = '0';
         return;

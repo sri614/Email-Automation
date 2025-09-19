@@ -53,7 +53,8 @@ async function cloneAndScheduleEmail(
   dayOffset,
   hour,
   minute,
-  strategy = "smart"
+  strategy = "smart",
+  customOptions = {}
 ) {
   try {
     // First, get the original email with ALL properties including custom ones
@@ -126,6 +127,12 @@ async function cloneAndScheduleEmail(
     const newEmailName = originalEmailName.replace(dateMatch[0], updatedDate);
 
     console.log(`Processing email: ${originalEmailId} -> "${newEmailName}"`);
+    console.log(`Scheduled for: ${clonedDate.toISOString()} (${hour}:${minute < 10 ? '0' + minute : minute})`);
+
+    if (strategy === 'custom' && customOptions.customStartHour !== undefined) {
+      const startTime = `${customOptions.customStartHour}:${(customOptions.customStartMinute || 0).toString().padStart(2, '0')}`;
+      console.log(`Custom timing - Start Time: ${startTime}, Interval: ${customOptions.customInterval} minutes`);
+    }
 
     if (processedEmailsCache.has(newEmailName)) {
       console.log(`Skipped: "${newEmailName}" already in current batch cache`);
@@ -269,7 +276,7 @@ router.get("/debug-email/:emailId", async (req, res) => {
   }
 });
 
-async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
+async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOptions = {}) {
   try {
     let stats = {
       totalAttempted: 0,
@@ -280,8 +287,10 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
     };
 
     for (let day = 1; day <= cloningCount; day++) {
-      let minuteCounter = 0;
-      let morningSlotsUsed = 0;
+      let morningMinuteCounter = 0;
+      let afternoonMinuteCounter = 0;
+      let customTimeCounter = 0;
+      let emailIndex = 0;
       const MAX_MORNING_SLOTS = 12;
 
       for (let i = 0; i < emailIds.length; i++) {
@@ -291,32 +300,60 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
         switch (strategy) {
           case "morning":
             hour = 11;
-            minute = minuteCounter;
-            minuteCounter += 5;
+            minute = morningMinuteCounter;
+            morningMinuteCounter += 5;
+            if (minute >= 60) {
+              hour += Math.floor(minute / 60);
+              minute = minute % 60;
+            }
             break;
 
           case "afternoon":
             hour = 16;
-            minute = minuteCounter;
-            minuteCounter += 5;
+            minute = afternoonMinuteCounter;
+            afternoonMinuteCounter += 5;
+            if (minute >= 60) {
+              hour += Math.floor(minute / 60);
+              minute = minute % 60;
+            }
             break;
 
           case "custom":
-            hour = 11;
-            minute = minuteCounter;
-            minuteCounter += 5;
+            // Fixed custom time logic
+            const startHour = customOptions.customStartHour || 11;
+            const startMinute = customOptions.customStartMinute || 0;
+            const interval = customOptions.customInterval || 5;
+
+            // Calculate total minutes from start time
+            const startTotalMinutes = startHour * 60 + startMinute;
+            const currentTotalMinutes = startTotalMinutes + (customTimeCounter * interval);
+
+            // Convert back to hours and minutes
+            hour = Math.floor(currentTotalMinutes / 60) % 24;
+            minute = currentTotalMinutes % 60;
+
+            customTimeCounter++;
             break;
 
+          case "smart":
           default:
-            if (morningSlotsUsed < MAX_MORNING_SLOTS) {
+            if (emailIndex < MAX_MORNING_SLOTS) {
               hour = 11;
-              minute = minuteCounter;
-              minuteCounter += 5;
-              morningSlotsUsed++;
+              minute = morningMinuteCounter;
+              morningMinuteCounter += 5;
             } else {
               hour = 16;
-              minute = minuteCounter - MAX_MORNING_SLOTS * 5;
+              minute = afternoonMinuteCounter;
+              afternoonMinuteCounter += 5;
             }
+
+            if (minute >= 60) {
+              hour += Math.floor(minute / 60);
+              minute = minute % 60;
+            }
+
+            emailIndex++;
+            break;
         }
 
         stats.totalAttempted++;
@@ -326,7 +363,8 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
           day,
           hour,
           minute,
-          strategy
+          strategy,
+          customOptions
         );
 
         if (result.success) {
@@ -342,7 +380,7 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
           stats.errors++;
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Rate limiting
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
@@ -361,7 +399,7 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart") {
 }
 
 router.post("/clone-emails", async (req, res) => {
-  const { emailIds, cloningCount, strategy = "smart" } = req.body;
+  const { emailIds, cloningCount, strategy = "smart", customStartHour, customStartMinute, customInterval } = req.body;
 
   // input validation
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
@@ -378,13 +416,46 @@ router.post("/clone-emails", async (req, res) => {
     });
   }
 
+  // Custom time validation
+  if (strategy === "custom") {
+    if (customStartHour !== undefined && (isNaN(customStartHour) || customStartHour < 0 || customStartHour > 23)) {
+      return res.status(400).json({
+        success: false,
+        message: "Custom start hour must be between 0 and 23",
+      });
+    }
+
+    if (customStartMinute !== undefined && (isNaN(customStartMinute) || customStartMinute < 0 || customStartMinute > 59)) {
+      return res.status(400).json({
+        success: false,
+        message: "Custom start minute must be between 0 and 59",
+      });
+    }
+
+    if (customInterval !== undefined && (isNaN(customInterval) || customInterval < 1 || customInterval > 60)) {
+      return res.status(400).json({
+        success: false,
+        message: "Custom interval must be between 1 and 60 minutes",
+      });
+    }
+  }
+
   try {
     processedEmailsCache.clear();
+
+    // Build custom options object
+    const customOptions = {};
+    if (strategy === "custom") {
+      customOptions.customStartHour = customStartHour;
+      customOptions.customStartMinute = customStartMinute;
+      customOptions.customInterval = customInterval;
+    }
 
     const result = await EmailCloner(
       emailIds,
       parseInt(cloningCount, 10),
-      strategy
+      strategy,
+      customOptions
     );
 
     if (result.success) {
