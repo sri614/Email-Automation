@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email-List Association Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .email-card {
+            border-left: 4px solid #4f46e5;
+        }
+
+        .list-card {
+            border-left: 4px solid #10b981;
+        }
+
+        .match-highlight {
+            background-color: #fffbeb;
+            border: 1px solid #f59e0b;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .created-lists {
+            height: 400px;
+            overflow-y: scroll;
+        }
+
+        .list.flex-bn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .list.flex-bn.sticky {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 10;
+            font-weight: bold;
+        }
+
+        .list.flex-bn p {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-weight: 500;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-2">Email-List Association Dashboard</h1>
+            <p class="text-gray-600 text-base">Connect emails with lists based on matching dates in their names</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Email Section -->
+            <!-- Email Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover border border-gray-200">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-indigo-700 flex items-center">
+                        <i class="fas fa-envelope mr-2 text-indigo-500"></i>
+                        Emails
+                    </h2>
+                    <span class="bg-indigo-600 text-white text-sm font-medium px-3 py-1 rounded-lg" id="email-count">0
+                        Emails</span>
+                </div>
+
+                <div class="mb-4">
+                    <label for="email-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter emails by date:</label>
+                    <select id="email-filter"
+                        class="w-full border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="today">Today</option>
+                        <option value="tomorrow">T+1 Days</option>
+                        <option value="tplus2">T+2 Days</option>
+                        <option value="tplus3">T+3 Days</option>
+                        <option value="tplus4">T+4 Days</option>
+                        <option value="all">All Emails</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2" id="email-container">
+                    <div class="text-center py-8 text-gray-400 col-span-2">
+                        <div class="loading-spinner mb-3"></div>
+                        <p>Loading emails...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lists Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover border border-gray-200">
+                <h4 class="emailCount mb-6 text-xl font-semibold text-green-700" id="list-count">{{lists.length}} Lists
+                </h4>
+
+                {{#if lists.length}}
+                <div class="filter-controls" style="margin-bottom: 20px;">
+                    <label for="date-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter by date in list
+                        names:</label>
+                    <select id="date-filter"
+                        class="w-full border border-gray-300 rounded-lg p-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="today">Today</option>
+                        <option value="tomorrow">T+1 Days</option>
+                        <option value="tplus2">T+2 Days</option>
+                        <option value="tplus3">T+3 Days</option>
+                        <option value="tplus4">T+4 Days</option>
+                        <option value="all" selected>All Lists</option>
+                    </select>
+                </div>
+
+                <div class="created-lists">
+                    <div class="list flex-bn sticky">
+                        <p class="heading"><strong>List ID</strong></p>
+                        <p class="heading"><strong>List Name</strong></p>
+                        <p class="heading"><strong>Created Date</strong></p>
+                    </div>
+                    <ol id="list-container">
+                        {{#each lists}}
+                        <li style="margin-bottom: 20px;">
+                            <div class="list flex-bn">
+                                <p class="list-id">{{this.listId}}</p>
+                                <p class="list-name">{{this.name}} <a
+                                        href="https://app.hubspot.com/contacts/5686032/objectLists/views/all?query={{this.name}}"
+                                        target="_blank">View list</a></p>
+                                <p class="list-date">{{this.formattedDate}}</p>
+                            </div>
+                        </li>
+                        {{/each}}
+                    </ol>
+                </div>
+                {{else}}
+                <h3>No Lists Found</h3>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- Association Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8 card-hover border border-gray-200">
+            <h2 class="text-xl font-semibold text-amber-700 mb-6">Email-List Associations</h2>
+
+            <div class="mb-4 flex items-center space-x-4">
+                <div class="flex-1">
+                    <label for="association-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter
+                        associations by date:</label>
+                    <select id="association-filter"
+                        class="w-full border border-gray-300 rounded-lg p-2 focus:ring-amber-500 focus:border-amber-500">
+                        <option value="today">Today</option>
+                        <option value="tomorrow">T+1 Days</option>
+                        <option value="tplus2">T+2 Days</option>
+                        <option value="tplus3">T+3 Days</option>
+                        <option value="tplus4">T+4 Days</option>
+                        <option value="all">All Associations</option>
+                    </select>
+                </div>
+                <button id="create-associations"
+                    class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-lg mt-5 transition-colors duration-200 shadow-sm hover:shadow-md"
+                    style="
+    background-color: #7c3aed;>
+                    <i class=" fas fa-link mr-2"></i>Create Associations
+                </button>
+                <button id="include-lists"
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg mt-5 transition-colors duration-200 shadow-sm hover:shadow-md">
+                    <i class="fas fa-object-group mr-2"></i>Include Lists in Emails
+                </button>
+            </div>
+
+            <div class="space-y-4 max-h-96 overflow-y-auto pr-2" id="association-container">
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-unlink text-4xl mb-3"></i>
+                    <p>No associations created yet</p>
+                    <p class="text-sm mt-2">Click "Create Associations" to match emails with lists based on dates</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real data arrays - will be populated from API
+        let emails = [];
+        let lists = [];
+        let associations = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load data from APIs
+            await loadEmails();
+            await loadListsFromPage();
+
+            // Initialize the UI with data
+            renderEmails(emails);
+            updateCounts();
+
+            // Set up event listeners for filters
+            document.getElementById('email-filter').addEventListener('change', function () {
+                filterItems('email', this.value);
+            });
+
+            document.getElementById('date-filter').addEventListener('change', function () {
+                filterLists(this.value);
+            });
+
+            document.getElementById('association-filter').addEventListener('change', function () {
+                filterAssociations(this.value);
+            });
+
+            // Set up event listener for creating associations
+            document.getElementById('create-associations').addEventListener('click', createAssociations);
+
+            // Set up event listener for including lists in emails
+            document.getElementById('include-lists').addEventListener('click', includeListsInEmails);
+        });
+
+        // Function to load emails from your API
+        async function loadEmails() {
+            try {
+                showNotification('Loading emails from database...', 'info');
+
+                // Replace with your actual API endpoint for cloned emails
+                const response = await fetch('/api/cloned-emails');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Transform the data to match our expected format
+                    emails = data.data.map(email => ({
+                        id: email.clonedEmailId,
+                        name: email.clonedEmailName,
+                        date: extractDateFromEmailName(email.clonedEmailName),
+                        scheduledTime: email.scheduledTime
+                    }));
+
+                    showNotification(`Loaded ${emails.length} emails`, 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to load emails');
+                }
+            } catch (error) {
+                console.error('Error loading emails:', error);
+                showNotification(`Error loading emails: ${error.message}`, 'error');
+
+
+
+                emails = sampleEmails;
+                showNotification(`Using sample email data for demonstration`, 'info');
+            }
+        }
+
+        // Function to load lists from your existing page structure
+        async function loadListsFromPage() {
+            try {
+                showNotification('Loading lists from page...', 'info');
+
+                // Extract lists from your existing HTML structure
+                const listElements = document.querySelectorAll('#list-container li');
+
+                if (listElements.length > 0) {
+                    lists = Array.from(listElements).map(listElement => {
+                        const listId = listElement.querySelector('.list-id').textContent.trim();
+                        const listNameElement = listElement.querySelector('.list-name');
+                        const listName = listNameElement.childNodes[0].textContent.trim();
+                        const formattedDate = listElement.querySelector('.list-date').textContent.trim();
+
+                        return {
+                            id: listId,
+                            name: listName,
+                            date: extractDateFromListName(listName),
+                            formattedDate: formattedDate
+                        };
+                    });
+
+                    showNotification(`Loaded ${lists.length} lists from page`, 'success');
+                } else {
+                    throw new Error('No lists found in page structure');
+                }
+            } catch (error) {
+                console.error('Error loading lists from page:', error);
+                showNotification(`Error loading lists: ${error.message}`, 'error');
+
+
+
+                lists = sampleLists;
+                showNotification(`Using sample list data for demonstration`, 'info');
+            }
+        }
+
+        // Function to extract date from email name
+        function extractDateFromEmailName(name) {
+            if (!name) return null;
+
+            // Try to extract date from the email name
+            const dateFormats = [
+                // Match "11 Sep 2025" or "1 Sep 2025"
+                {
+                    regex: /(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/, handler: (match) => {
+                        const months = {
+                            'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                            'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+                        };
+                        const monthNum = months[match[2]];
+                        if (monthNum !== undefined) {
+                            // Create date at noon local time to avoid timezone issues
+                            const year = parseInt(match[3]);
+                            const month = monthNum;
+                            const day = parseInt(match[1]);
+                            const date = new Date(year, month, day, 12, 0, 0);
+                            return date;
+                        }
+                        return null;
+                    }
+                },
+                // Match "Sep 11 2025" or "Sep 1 2025"
+                {
+                    regex: /([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/, handler: (match) => {
+                        const months = {
+                            'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                            'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+                        };
+                        const monthNum = months[match[1]];
+                        if (monthNum !== undefined) {
+                            // Create date at noon local time to avoid timezone issues
+                            const year = parseInt(match[3]);
+                            const month = monthNum;
+                            const day = parseInt(match[2]);
+                            const date = new Date(year, month, day, 12, 0, 0);
+                            return date;
+                        }
+                        return null;
+                    }
+                },
+                // Match "11/09/2025" or "9/11/2025"
+                {
+                    regex: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, handler: (match) => {
+                        const year = parseInt(match[3]);
+                        const month = parseInt(match[2]) - 1;
+                        const day = parseInt(match[1]);
+                        return new Date(year, month, day, 12, 0, 0);
+                    }
+                },
+                // Match "2025-09-11"
+                {
+                    regex: /(\d{4})-(\d{1,2})-(\d{1,2})/, handler: (match) => {
+                        const year = parseInt(match[1]);
+                        const month = parseInt(match[2]) - 1;
+                        const day = parseInt(match[3]);
+                        return new Date(year, month, day, 12, 0, 0);
+                    }
+                }
+            ];
+
+            for (const format of dateFormats) {
+                const match = name.match(format.regex);
+                if (match) {
+                    const date = format.handler(match);
+                    if (date && !isNaN(date.getTime())) {
+                        // Return as YYYY-MM-DD in local timezone
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // Function to extract date from list name
+        function extractDateFromListName(listName) {
+            if (!listName) return null;
+
+            const dateFormats = [
+                // Match "11 Sep 2025" or "1 Sep 2025" 
+                {
+                    regex: /(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/, handler: (match) => {
+                        const months = {
+                            'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                            'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+                        };
+                        const monthNum = months[match[2]];
+                        if (monthNum !== undefined) {
+                            // Create date at noon local time to avoid timezone issues
+                            const year = parseInt(match[3]);
+                            const month = monthNum;
+                            const day = parseInt(match[1]);
+                            const date = new Date(year, month, day, 12, 0, 0);
+                            return date;
+                        }
+                        return null;
+                    }
+                },
+                // Match "Sep 11 2025" or "Sep 1 2025"
+                {
+                    regex: /([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/, handler: (match) => {
+                        const months = {
+                            'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                            'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+                        };
+                        const monthNum = months[match[1]];
+                        if (monthNum !== undefined) {
+                            // Create date at noon local time to avoid timezone issues
+                            const year = parseInt(match[3]);
+                            const month = monthNum;
+                            const day = parseInt(match[2]);
+                            const date = new Date(year, month, day, 12, 0, 0);
+                            return date;
+                        }
+                        return null;
+                    }
+                },
+                // Match "11/09/2025" or "9/11/2025"
+                {
+                    regex: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, handler: (match) => {
+                        const year = parseInt(match[3]);
+                        const month = parseInt(match[2]) - 1;
+                        const day = parseInt(match[1]);
+                        return new Date(year, month, day, 12, 0, 0);
+                    }
+                },
+                // Match "2025-09-11"
+                {
+                    regex: /(\d{4})-(\d{1,2})-(\d{1,2})/, handler: (match) => {
+                        const year = parseInt(match[1]);
+                        const month = parseInt(match[2]) - 1;
+                        const day = parseInt(match[3]);
+                        return new Date(year, month, day, 12, 0, 0);
+                    }
+                }
+            ];
+
+            for (const format of dateFormats) {
+                const match = listName.match(format.regex);
+                if (match) {
+                    const date = format.handler(match);
+                    if (date && !isNaN(date.getTime())) {
+                        // Return as YYYY-MM-DD in local timezone
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
+        // Function to normalize names by removing tier information and other variations
+        function normalizeName(name) {
+            if (!name) return '';
+
+            // Remove tier information (Tier 0, Tier 1, Tier 2, Tier A, Tier B, Tier C, etc.)
+            let normalized = name
+                .replace(/\s*Tier\s*\d+\s*/gi, '')  // Remove Tier with numbers (0, 1, 2, etc.)
+                .replace(/\s*Tier\s*[A-Z]\s*/gi, '') // Remove Tier with letters (A, B, C, etc.)
+                .replace(/\s*Tier\s*Zero\s*/gi, '') // Remove Tier Zero
+                .replace(/\s*T\d+\s*/gi, '')         // Remove T0, T1, T2, etc.
+                .replace(/\s*-\s*Tier\s*\d+\s*/gi, '') // Remove - Tier 0, - Tier 1, - Tier 2, etc.
+                .replace(/\s*-\s*Tier\s*[A-Z]\s*/gi, '') // Remove - Tier A, - Tier B, etc.
+                .replace(/\s*-\s*Tier\s*Zero\s*/gi, '') // Remove - Tier Zero
+                .replace(/\s*-\s*Main\s*/gi, '')
+                .replace(/\s*-\s*Secondary\s*/gi, '')
+                .replace(/\s*-\s*Primary\s*/gi, '')
+                .trim();
+
+            // Remove extra spaces, multiple hyphens, and clean up
+            normalized = normalized
+                .replace(/\s+/g, ' ')        // Replace multiple spaces with single space
+                .replace(/\s*-\s*-\s*/g, ' - ') // Clean up multiple hyphens
+                .replace(/\s-\s/g, ' ')      // Remove standalone hyphens
+                .replace(/\s+/g, ' ')        // Final cleanup of spaces
+                .trim();
+
+            return normalized;
+        }
+
+        // Function to check if email and list names match (ignoring tier information)
+        function namesMatch(emailName, listName) {
+            const normalizedEmail = normalizeName(emailName).toLowerCase();
+            const normalizedList = normalizeName(listName).toLowerCase();
+
+            // First check if they're exactly the same after normalization
+            if (normalizedEmail === normalizedList) {
+                return true;
+            }
+
+            // Split into words and compare significant parts
+            const emailWords = normalizedEmail.split(' ').filter(word => word.length > 0);
+            const listWords = normalizedList.split(' ').filter(word => word.length > 0);
+
+            // Find the minimum number of words to compare (at least 3 or all available)
+            const minWords = Math.min(3, emailWords.length, listWords.length);
+
+            // Compare the first few significant words
+            const emailPrefix = emailWords.slice(0, minWords).join(' ');
+            const listPrefix = listWords.slice(0, minWords).join(' ');
+
+            return emailPrefix === listPrefix;
+        }
+
+
+        // Function to check if a date matches the filter criteria
+        function dateMatchesFilter(date, filterType) {
+            if (filterType === 'all') return true;
+            if (!date) return false;
+
+            // Parse the date string properly
+            const [year, month, day] = date.split('-').map(n => parseInt(n));
+
+            // Create dates at noon to avoid any timezone issues
+            const itemDate = new Date(year, month - 1, day, 12, 0, 0);
+
+            const now = new Date();
+            // Create today's date at noon
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+
+            // Calculate days difference more accurately
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const itemDateNormalized = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+            const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            const diffDays = Math.round((itemDateNormalized - todayNormalized) / msPerDay);
+
+            // Create string representations for exact comparison
+            const itemDateStr = `${itemDate.getFullYear()}-${String(itemDate.getMonth() + 1).padStart(2, '0')}-${String(itemDate.getDate()).padStart(2, '0')}`;
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            console.log(`Filter: ${filterType} | Item Date: ${itemDateStr} | Today: ${todayStr} | Days Diff: ${diffDays}`);
+
+            switch (filterType) {
+                case 'today':
+                    // Use string comparison for exact date match
+                    return itemDateStr === todayStr;
+                case 'tomorrow':
+                    return diffDays === 1;
+                case 'tplus2':
+                    return diffDays === 2;
+                case 'tplus3':
+                    return diffDays === 3;
+                case 'tplus4':
+                    return diffDays === 4;
+                default:
+                    return false;
+            }
+        }
+
+        // Helper function to compare dates - using your existing logic
+        function isSameDate(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
+        }
+
+        // Format date for display
+        function formatDate(date) {
+            if (!date) return 'No date';
+
+            return new Date(date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Render emails in the UI
+        function renderEmails(emailsToRender) {
+            const container = document.getElementById('email-container');
+
+            if (emailsToRender.length === 0) {
+                container.innerHTML = `
+            <div class="text-center py-8 text-gray-400 col-span-2">
+                <i class="fas fa-envelope-open-text text-4xl mb-3"></i>
+                <p>No emails found</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = emailsToRender.map(email => `
+        <div class="email-card card bg-white border border-gray-200 rounded-lg p-4 w-full" data-id="${email.id}" data-date="${email.date}">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-medium text-gray-800 text-sm">${email.name}</h3>
+                <div class="flex items-center space-x-2">
+                    ${email.date ? `<span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">${formatDate(email.date)}</span>` : '<span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">No date</span>'}
+                </div>
+            </div>
+            <div class="text-sm text-gray-500">
+                <p class="text-xs">ID: ${email.id}</p>
+                ${email.scheduledTime ? `<p class="mt-1 text-xs">Scheduled: ${new Date(email.scheduledTime).toLocaleString()}</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+            // Add event listeners to delete buttons
+            addEmailDeleteListeners();
+        }
+
+        // Add event listeners to delete buttons
+        function addEmailDeleteListeners() {
+            document.querySelectorAll('.delete-email').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const emailId = this.getAttribute('data-id');
+                    deleteEmail(emailId);
+                });
+            });
+        }
+
+        // Function to delete a cloned email
+        async function deleteEmail(emailId) {
+            if (!confirm('Are you sure you want to delete this email? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                showNotification('Deleting email...', 'info');
+
+                // Replace with your actual API endpoint and token
+                const response = await fetch(`/api/cloned-emails/${emailId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove the email from the local array
+                    emails = emails.filter(email => email.id !== emailId);
+
+                    // Re-render emails
+                    renderEmails(emails);
+                    updateCounts();
+
+                    showNotification('Email deleted successfully', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to delete email');
+                }
+            } catch (error) {
+                console.error('Error deleting email:', error);
+                showNotification(`Error deleting email: ${error.message}`, 'error');
+            }
+        }
+
+        // Filter function for T+0 to T+4 and All Lists - Your original function
+        // Fixed filter function for T+0 to T+4 and All Lists
+        function filterLists(filterType) {
+            const listItems = document.querySelectorAll('#list-container li');
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let visibleCount = 0;
+
+            listItems.forEach(item => {
+                const listNameElement = item.querySelector('.list-name');
+                const listName = listNameElement.childNodes[0].textContent.trim(); // Get the list name text only
+                const itemDate = extractDateFromListName(listName);
+                let showItem = false;
+
+                if (filterType === 'all') {
+                    showItem = true;
+                } else if (itemDate) {
+                    // Parse the extracted date string (YYYY-MM-DD format)
+                    const [year, month, day] = itemDate.split('-').map(n => parseInt(n));
+                    const itemDateObj = new Date(year, month - 1, day, 12, 0, 0);
+
+                    // Create today's date at noon for accurate comparison
+                    const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
+
+                    // Calculate days difference
+                    const msPerDay = 24 * 60 * 60 * 1000;
+                    const diffDays = Math.round((itemDateObj - todayNormalized) / msPerDay);
+
+                    switch (filterType) {
+                        case 'today':
+                            showItem = diffDays === 0;
+                            break;
+                        case 'tomorrow':
+                            showItem = diffDays === 1;
+                            break;
+                        case 'tplus2':
+                            showItem = diffDays === 2;
+                            break;
+                        case 'tplus3':
+                            showItem = diffDays === 3;
+                            break;
+                        case 'tplus4':
+                            showItem = diffDays === 4;
+                            break;
+                        default:
+                            showItem = false;
+                    }
+                }
+
+                item.style.display = showItem ? 'block' : 'none';
+                if (showItem) visibleCount++;
+            });
+
+            updateListCount(visibleCount);
+        }
+
+        // Update the list count display
+        function updateListCount(count) {
+            const countElement = document.getElementById('list-count');
+            if (countElement) {
+                countElement.textContent = `${count} Lists`;
+            }
+        }
+        // Render associations in the UI
+        function renderAssociations(associationsToRender) {
+            const container = document.getElementById('association-container');
+
+            if (associationsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-unlink text-4xl mb-3"></i>
+                        <p>No associations created yet</p>
+                        <p class="text-sm mt-2">Click "Create Associations" to match emails with lists based on dates</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="association-container">
+                    ${associationsToRender.map(assoc => `
+                        <div class="match-highlight card bg-white border border-amber-200 rounded-lg p-4 w-full" data-date="${assoc.date}">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">${formatDate(assoc.date)}</span>
+                                <button class="text-red-500 hover:text-red-700 delete-association" data-id="${assoc.id}">
+                                    <i class="fas fa-unlink"></i>
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="email-card bg-indigo-50 rounded-lg p-3">
+                                    <h4 class="font-medium text-indigo-700 mb-1">Email</h4>
+                                    <p class="text-sm">${assoc.emailName}</p>
+                                    <p class="text-xs text-indigo-500">ID: ${assoc.emailId}</p>
+                                </div>
+
+                                <div class="list-card bg-green-50 rounded-lg p-3">
+                                    <h4 class="font-medium text-green-700 mb-1">List</h4>
+                                    <p class="text-sm">${assoc.listName}</p>
+                                    <p class="text-xs text-green-500">ID: ${assoc.listId}</p>
+                                    <a href="https://app.hubspot.com/contacts/5686032/objectLists/views/all?query=${encodeURIComponent(assoc.listName)}"
+                                       target="_blank" class="text-blue-500 hover:text-blue-700 text-xs mt-1 block">
+                                        <i class="fas fa-external-link-alt mr-1"></i>View list
+                                    </a>
+                                </div>
+
+                                <div class="status-message" id="status-${assoc.id}" style="display: none;">
+                                    <!-- Status messages will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-association').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const associationId = this.getAttribute('data-id');
+                    deleteAssociation(associationId);
+                });
+            });
+        }
+
+        // Filter items based on date
+        function filterItems(type, filterType) {
+            const items = type === 'email' ? emails : lists;
+            const container = document.getElementById(`${type}-container`);
+            const countElement = document.getElementById(`${type}-count`);
+
+            const filteredItems = items.filter(item => {
+                return dateMatchesFilter(item.date, filterType);
+            });
+
+            if (type === 'email') {
+                renderEmails(filteredItems);
+            }
+
+            if (countElement) {
+                countElement.textContent = `${filteredItems.length} ${type === 'email' ? 'Emails' : 'Lists'}`;
+            }
+        }
+
+        // Filter associations based on date
+        function filterAssociations(filterType) {
+            console.log(`Filtering associations for: ${filterType}`);
+            console.log(`Total associations before filter: ${associations.length}`);
+
+            const filteredAssociations = associations.filter(assoc => {
+                const matches = dateMatchesFilter(assoc.date, filterType);
+                if (matches) {
+                    console.log(`Association matches ${filterType}: ${assoc.emailName} <-> ${assoc.listName} (${assoc.date})`);
+                }
+                return matches;
+            });
+
+            console.log(`Filtered associations count: ${filteredAssociations.length}`);
+            renderAssociations(filteredAssociations);
+        }
+
+        // Create associations between emails and lists with matching dates and similar names
+        function createAssociations() {
+            associations = [];
+            let debugInfo = [];
+
+            console.log('=== Starting Association Creation ===');
+            console.log(`Total Emails: ${emails.length}`);
+            console.log(`Total Lists: ${lists.length}`);
+
+            emails.forEach(email => {
+                console.log(`\nProcessing Email: "${email.name}"`);
+                console.log(`  Email Date: ${email.date}`);
+
+                if (!email.date) {
+                    debugInfo.push(`Skipped email "${email.name}" - no date found`);
+                    console.log('  ❌ No date found in email name');
+                    return;
+                }
+
+                const normalizedEmailName = normalizeName(email.name);
+                console.log(`  Normalized Email Name: "${normalizedEmailName}"`);
+
+                let emailMatched = false;
+                let matchingLists = [];
+
+                lists.forEach(list => {
+                    if (!list.date) {
+                        return; // Skip lists without dates
+                    }
+
+                    const normalizedListName = normalizeName(list.name);
+                    const datesMatch = email.date === list.date;
+                    const namesAreSimilar = namesMatch(email.name, list.name);
+
+                    if (datesMatch) {
+                        console.log(`  Checking List: "${list.name}"`);
+                        console.log(`    List Date: ${list.date}`);
+                        console.log(`    Normalized List Name: "${normalizedListName}"`);
+                        console.log(`    Dates Match: ✓`);
+                        console.log(`    Names Similar: ${namesAreSimilar ? '✓' : '✗'}`);
+
+                        if (!namesAreSimilar) {
+                            console.log(`    Name mismatch details:`);
+                            console.log(`      Email (normalized): "${normalizedEmailName}"`);
+                            console.log(`      List (normalized): "${normalizedListName}"`);
+                        }
+                    }
+
+                    // Check if dates match AND names are similar (ignoring tier information)
+                    if (datesMatch && namesAreSimilar) {
+                        const association = {
+                            id: `${email.id}-${list.id}`,
+                            emailId: email.id,
+                            emailName: email.name,
+                            listId: list.id,
+                            listName: list.name,
+                            date: email.date
+                        };
+                        associations.push(association);
+                        matchingLists.push(list.name);
+                        emailMatched = true;
+                        console.log(`    ✅ MATCH FOUND! Association created.`);
+                    }
+                });
+
+                if (emailMatched) {
+                    console.log(`  ✅ Email matched with ${matchingLists.length} list(s): ${matchingLists.join(', ')}`);
+                } else if (email.date) {
+                    debugInfo.push(`Email "${email.name}" (${email.date}) - no matching list found`);
+                    console.log(`  ❌ No matching lists found for this email`);
+                }
+            });
+
+            console.log('\n=== Association Results ===');
+            console.log(`Total Associations Created: ${associations.length}`);
+
+            // Log debug info if needed
+            if (debugInfo.length > 0) {
+                console.log('\nUnmatched Items:', debugInfo);
+            }
+
+            // Apply current filter before rendering
+            const currentFilter = document.getElementById('association-filter').value;
+            console.log(`\nApplying filter "${currentFilter}" to ${associations.length} associations`);
+
+            // Instead of filtering here, use the filterAssociations function to ensure consistency
+            filterAssociations(currentFilter);
+
+            // Show notification with more detail
+            if (associations.length > 0) {
+                const message = `Created ${associations.length} association${associations.length > 1 ? 's' : ''} between emails and lists`;
+                showNotification(message, 'success');
+                console.log('\n✅ Associations created successfully!');
+                console.log('Associations:', associations);
+            } else {
+                showNotification('No matching dates and names found. Check console for details.', 'info');
+                console.log('\n❌ No associations could be created. Check that:');
+                console.log('1. Email and list names are similar (ignoring tier info)');
+                console.log('2. Dates in names match exactly');
+            }
+        }
+
+        // Delete an association
+        function deleteAssociation(associationId) {
+            associations = associations.filter(assoc => assoc.id !== associationId);
+            renderAssociations(associations);
+            showNotification('Association deleted', 'info');
+        }
+
+        // Update counts of emails and lists
+        function updateCounts() {
+            const emailCountElement = document.getElementById('email-count');
+            if (emailCountElement) {
+                emailCountElement.textContent = `${emails.length} Emails`;
+            }
+        }
+
+
+        // Updated includeListsInEmails function with enhanced error handling
+        async function includeListsInEmails() {
+            // Get currently filtered associations or all associations
+            const currentFilter = document.getElementById('association-filter').value;
+            const associationsToProcess = associations.filter(assoc =>
+                dateMatchesFilter(assoc.date, currentFilter)
+            );
+
+            if (associationsToProcess.length === 0) {
+                if (associations.length === 0) {
+                    showNotification('Please create associations first', 'error');
+                } else {
+                    showNotification(`No associations found for filter: ${currentFilter}`, 'error');
+                }
+                return;
+            }
+
+            console.log('=== Starting Include Lists in Emails ===');
+            console.log(`Processing ${associationsToProcess.length} associations (filter: ${currentFilter})`);
+
+            try {
+                showNotification(`Processing ${associationsToProcess.length} email-list associations...`, 'info');
+                let successCount = 0;
+                let errorCount = 0;
+                let needsManualCheck = [];
+
+                // Process each association
+                for (const [index, association] of associationsToProcess.entries()) {
+                    const statusElement = document.getElementById(`status-${association.id}`);
+
+                    try {
+                        console.log(`\n📧 Processing Association ${index + 1}/${associationsToProcess.length}:`);
+                        console.log(`  Email: "${association.emailName}" (ID: ${association.emailId})`);
+                        console.log(`  List: "${association.listName}" (ID: ${association.listId})`);
+                        console.log(`  Date: ${association.date}`);
+
+                        // Show processing status
+                        if (statusElement) {
+                            statusElement.style.display = 'block';
+                            statusElement.innerHTML = `
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-spinner fa-spin text-blue-500 mr-2"></i>
+                                        <span class="text-blue-700 text-sm">Processing...</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        // Make API call to include list in email
+                        const response = await fetch('/api/include-list-in-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                emailId: association.emailId.toString(),
+                                listId: association.listId.toString(),
+                                emailName: association.emailName,
+                                listName: association.listName
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.message || `HTTP error ${response.status}`);
+                        }
+
+                        // If we get a successful response, trust it worked
+                        successCount++;
+                        console.log(`  ✅ Successfully included list in email`);
+
+                        // Show success status in UI
+                        if (statusElement) {
+                            statusElement.innerHTML = `
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                        <span class="text-green-700 text-sm">✅ List successfully included in email</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        showNotification(`✅ "${association.listName}" included in "${association.emailName}"`, 'success');
+
+                    } catch (error) {
+                        errorCount++;
+                        console.error(`  ❌ Error: ${error.message}`);
+
+                        // Show error status in UI
+                        if (statusElement) {
+                            statusElement.innerHTML = `
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3 mt-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                        <span class="text-red-700 text-sm">❌ Error: ${error.message}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        showNotification(`❌ Error with "${association.emailName}": ${error.message}`, 'error');
+                    }
+
+                    // Add a small delay between API calls to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+
+                console.log('\n=== Include Lists Results ===');
+                console.log(`Successful: ${successCount}`);
+                console.log(`Failed: ${errorCount}`);
+
+                if (successCount > 0 && errorCount === 0) {
+                    showNotification(`✅ All ${successCount} lists have been included in their emails`, 'success');
+                } else if (successCount > 0 && errorCount > 0) {
+                    showNotification(`⚠️ ${successCount} succeeded, ${errorCount} failed. Check console for details.`, 'warning');
+                } else if (errorCount > 0) {
+                    showNotification(`❌ Failed to include lists. Check console for details.`, 'error');
+                }
+
+            } catch (error) {
+                console.error('Error in includeListsInEmails:', error);
+                showNotification(`Error including lists in emails: ${error.message}`, 'error');
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-[200px] right-4 px-4 py-3 rounded-lg shadow-lg text-white font-medium z-50 ${type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                }`;
+
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initial filter setup
+        setTimeout(() => {
+            // Set default filter for lists
+            if (document.getElementById('date-filter')) {
+                document.getElementById('date-filter').value = 'all';
+                filterLists('all');
+            }
+
+            // Set default filter for associations  
+            if (document.getElementById('association-filter')) {
+                document.getElementById('association-filter').value = 'today';
+            }
+
+            // Set default filter for emails
+            if (document.getElementById('email-filter')) {
+                document.getElementById('email-filter').value = 'today';
+            }
+        }, 100);
+    </script>
+</body>
+
+</html>

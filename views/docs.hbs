@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HubSpot Email Publisher</title>
+  <style>
+    :root {
+      --primary: #007bff;
+      --accent: #ff7316;
+      --light-bg: rgba(0, 195, 249, 0.244);
+      --white: #ffffff;
+      --light-gray: #f8f9fa;
+      --border-color: #dee2e6;
+      --text-dark: #343a40;
+      --text-light: #6c757d;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--light-bg) 0%, #f5f9ff 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .panel {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      flex: 1;
+      min-width: 300px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .left-panel {
+      flex: 2;
+    }
+
+    .right-panel {
+      flex: 1;
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 28px;
+      position: relative;
+      padding-bottom: 15px;
+    }
+
+    h1:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .panel-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--light-bg);
+      color: var(--primary);
+    }
+
+    .input-section {
+      margin-bottom: 25px;
+    }
+
+    .input-section label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .input-section input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .input-section input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+
+    .filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .filter-controls label {
+      margin: 0;
+      white-space: nowrap;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .filter-controls select {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      background-color: var(--white);
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .filter-controls select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+
+    .filter-controls button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: linear-gradient(to right, var(--primary), #0062cc);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    }
+
+    .filter-controls button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+    }
+
+    .options-section {
+      margin-bottom: 25px;
+    }
+
+    .options-section label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .options-section input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .options-section input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+
+    #publishBtn {
+      background: linear-gradient(to right, var(--accent), #e65c00);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(255, 115, 22, 0.3);
+      margin-bottom: 20px;
+    }
+
+    #publishBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(255, 115, 22, 0.4);
+    }
+
+    #publishBtn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .results-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid var(--light-bg);
+      animation: slideDown 0.5s ease-out;
+    }
+
+    .results-section h3 {
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+
+    .result-item {
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background-color: var(--light-gray);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .result-item.success {
+      background-color: rgba(40, 167, 69, 0.15);
+      color: #155724;
+      border-left: 4px solid var(--success);
+    }
+
+    .result-item.error {
+      background-color: rgba(220, 53, 69, 0.15);
+      color: #721c24;
+      border-left: 4px solid var(--danger);
+    }
+
+    .result-item.warning {
+      background-color: rgba(255, 193, 7, 0.15);
+      color: #856404;
+      border-left: 4px solid var(--warning);
+    }
+
+    .email-count {
+      margin-top: 15px;
+      font-style: italic;
+      color: var(--text-light);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .email-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      background-color: var(--light-gray);
+      margin-top: 15px;
+    }
+
+    .email-card {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: var(--white);
+      transition: all 0.3s ease;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .email-card:hover {
+      background-color: var(--light-bg);
+      transform: translateX(5px);
+    }
+
+    .email-card input[type="checkbox"] {
+      margin-right: 15px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .email-info {
+      flex: 1;
+    }
+
+    .email-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text-dark);
+    }
+
+    .email-id {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .selected-emails {
+      margin-top: 15px;
+      padding: 15px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: var(--light-gray);
+    }
+
+    .selected-email {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 8px;
+      background-color: var(--light-bg);
+      border-radius: 8px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .select-all {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .select-all label {
+      margin-left: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--primary);
+    }
+
+    .select-all input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .no-selection {
+      text-align: center;
+      color: var(--text-light);
+      font-style: italic;
+      padding: 15px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left-panel,
+      .right-panel {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      body {
+        padding: 10px;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-controls select,
+      .filter-controls button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="panel left-panel">
+      <h1>HubSpot Email Publisher</h1>
+
+      <div class="input-section">
+        <div class="filter-controls">
+          <label for="dateFilter"><strong>Filter by Date:</strong></label>
+          <select id="dateFilter">
+            <option value="today">Today</option>
+            <option value="t1">T+1 (Tomorrow)</option>
+            <option value="t2">T+2</option>
+            <option value="t3">T+3</option>
+            <option value="t4">T+4</option>
+          </select>
+          <button type="button" id="loadEmailsBtn">Load Emails</button>
+        </div>
+        <div id="emailCount" class="email-count">No emails loaded yet</div>
+
+        <div class="select-all">
+          <input type="checkbox" id="selectAll">
+          <label for="selectAll">Select All</label>
+        </div>
+
+        <div class="email-list" id="emailList">
+          <!-- Email cards will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel right-panel">
+      <div class="panel-title">Selected Emails</div>
+
+      <div class="selected-emails" id="selectedEmails">
+        <!-- Selected emails will appear here -->
+        <div class="no-selection">No emails selected</div>
+      </div>
+
+      <div class="input-section">
+        <label for="emailIds">Email IDs to Publish:</label>
+        <input type="text" id="emailIds" readonly placeholder="Selected email IDs will appear here">
+      </div>
+
+
+
+      <button id="publishBtn">Publish Emails</button>
+
+      <div class="results-section" id="resultsSection" style="display: none;">
+        <h3>Publish Results</h3>
+        <div id="resultsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper to format date to YYYY-MM-DD (for comparison)
+    function formatDate(date) {
+      const d = new Date(date);
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    // Robust extractDateFromEmailName (copied from deletedLists.hbs)
+    function extractDateFromEmailName(name) {
+      if (!name) return null;
+      const dateFormats = [
+        // Match "11 Sep 2025" or "1 Sep 2025"
+        {
+          regex: /(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/, handler: (match) => {
+            const months = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
+            const monthNum = months[match[2]];
+            if (monthNum !== undefined) {
+              const year = parseInt(match[3]);
+              const month = monthNum;
+              const day = parseInt(match[1]);
+              const date = new Date(year, month, day, 12, 0, 0);
+              return date;
+            }
+            return null;
+          }
+        },
+        // Match "Sep 11 2025" or "Sep 1 2025"
+        {
+          regex: /([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/, handler: (match) => {
+            const months = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
+            const monthNum = months[match[1]];
+            if (monthNum !== undefined) {
+              const year = parseInt(match[3]);
+              const month = monthNum;
+              const day = parseInt(match[2]);
+              const date = new Date(year, month, day, 12, 0, 0);
+              return date;
+            }
+            return null;
+          }
+        },
+        // Match "11/09/2025" or "9/11/2025"
+        {
+          regex: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, handler: (match) => {
+            const year = parseInt(match[3]);
+            const month = parseInt(match[2]) - 1;
+            const day = parseInt(match[1]);
+            return new Date(year, month, day, 12, 0, 0);
+          }
+        },
+        // Match "2025-09-11"
+        {
+          regex: /(\d{4})-(\d{1,2})-(\d{1,2})/, handler: (match) => {
+            const year = parseInt(match[1]);
+            const month = parseInt(match[2]) - 1;
+            const day = parseInt(match[3]);
+            return new Date(year, month, day, 12, 0, 0);
+          }
+        }
+      ];
+      for (const format of dateFormats) {
+        const match = name.match(format.regex);
+        if (match) {
+          const date = format.handler(match);
+          if (date && !isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Function to check if an email is approved
+    async function checkEmailApproval(emailId) {
+      try {
+        // In a real implementation, this would call your API to check approval status
+        // For demonstration, we'll simulate API call with a timeout
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Simulate approval status (80% approved for demo)
+        const isApproved = Math.random() > 0.2;
+
+        return {
+          success: true,
+          approved: isApproved,
+          emailId: emailId
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+          emailId: emailId
+        };
+      }
+    }
+
+    // Store the current email data
+    let currentEmails = [];
+    let selectedEmailIds = new Set();
+
+    // Function to update the selected emails display
+    function updateSelectedEmails() {
+      const selectedEmailsContainer = document.getElementById('selectedEmails');
+      const emailIdsInput = document.getElementById('emailIds');
+
+      // Clear the current display
+      selectedEmailsContainer.innerHTML = '';
+
+      if (selectedEmailIds.size === 0) {
+        selectedEmailsContainer.innerHTML = '<div class="no-selection">No emails selected</div>';
+        emailIdsInput.value = '';
+        return;
+      }
+
+      // Create elements for each selected email
+      selectedEmailIds.forEach(emailId => {
+        const email = currentEmails.find(e => e.clonedEmailId === emailId);
+        const emailDiv = document.createElement('div');
+        emailDiv.className = 'selected-email';
+        emailDiv.innerHTML = `
+          <span>${email ? email.clonedEmailName : emailId}</span>
+          <button class="remove-btn" data-id="${emailId}">×</button>
+        `;
+        selectedEmailsContainer.appendChild(emailDiv);
+      });
+
+      // Update the input field with comma-separated IDs
+      emailIdsInput.value = Array.from(selectedEmailIds).join(', ');
+
+      // Add event listeners to remove buttons
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const idToRemove = this.getAttribute('data-id');
+          selectedEmailIds.delete(idToRemove);
+
+          // Also uncheck the checkbox in the email list
+          const checkbox = document.querySelector(`.email-card input[value="${idToRemove}"]`);
+          if (checkbox) {
+            checkbox.checked = false;
+          }
+
+          updateSelectedEmails();
+          updateSelectAllCheckbox();
+        });
+      });
+    }
+
+    // Function to update the select all checkbox state
+    function updateSelectAllCheckbox() {
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const emailCheckboxes = document.querySelectorAll('.email-card input[type="checkbox"]');
+
+      if (emailCheckboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.disabled = true;
+        return;
+      }
+
+      selectAllCheckbox.disabled = false;
+
+      const allChecked = Array.from(emailCheckboxes).every(checkbox => checkbox.checked);
+      const someChecked = Array.from(emailCheckboxes).some(checkbox => checkbox.checked);
+
+      selectAllCheckbox.checked = allChecked;
+      selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    }
+
+    // Load emails based on selected filter
+    document.getElementById('loadEmailsBtn').addEventListener('click', async function () {
+      const emailCount = document.getElementById('emailCount');
+      const emailList = document.getElementById('emailList');
+      emailCount.textContent = `Loading emails...`;
+      emailList.innerHTML = '';
+
+      const filter = document.getElementById('dateFilter').value;
+      // Calculate the target date string (YYYY-MM-DD) for the filter
+      const today = new Date();
+      let offset = 0;
+      if (filter === 't1') offset = 1;
+      else if (filter === 't2') offset = 2;
+      else if (filter === 't3') offset = 3;
+      else if (filter === 't4') offset = 4;
+      // Set time to noon to avoid timezone issues
+      const targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset, 12, 0, 0);
+      const targetDateStr = formatDate(targetDate);
+
+      try {
+        const res = await fetch('/api/cloned-emails');
+        const data = await res.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          // Filter emails by extracted date (from name or scheduledTime)
+          currentEmails = data.data.filter(e => {
+            let extracted = extractDateFromEmailName(e.name);
+            if (!extracted && e.scheduledTime) {
+              // fallback to scheduledTime (assume ISO string)
+              extracted = formatDate(e.scheduledTime);
+            }
+            return extracted === targetDateStr;
+          });
+
+          // Clear previous selections when loading new emails
+          selectedEmailIds.clear();
+          updateSelectedEmails();
+
+          if (currentEmails.length > 0) {
+            // Create email cards
+            currentEmails.forEach(email => {
+              const card = document.createElement('div');
+              card.className = 'email-card';
+              card.innerHTML = `
+                <input type="checkbox" value="${email.clonedEmailId}">
+                <div class="email-info">
+                  <div class="email-name">${email.clonedEmailName || 'Unnamed Email'}</div>
+                  <div class="email-id">ID: ${email.clonedEmailId}</div>
+                </div>
+              `;
+              emailList.appendChild(card);
+            });
+
+            // Add event listeners to checkboxes
+            document.querySelectorAll('.email-card input[type="checkbox"]').forEach(checkbox => {
+              checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                  selectedEmailIds.add(this.value);
+                } else {
+                  selectedEmailIds.delete(this.value);
+                }
+                updateSelectedEmails();
+                updateSelectAllCheckbox();
+              });
+            });
+
+            emailCount.textContent = `Found ${currentEmails.length} email(s) for ${targetDateStr}`;
+          } else {
+            emailCount.textContent = `No emails found for ${targetDateStr}`;
+          }
+        } else {
+          emailCount.textContent = 'No emails found';
+        }
+      } catch (e) {
+        console.error(e);
+        emailCount.textContent = 'Error loading emails from server.';
+      }
+
+      updateSelectAllCheckbox();
+    });
+
+    // Select all functionality
+    document.getElementById('selectAll').addEventListener('change', function () {
+      const checkboxes = document.querySelectorAll('.email-card input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+
+        if (this.checked) {
+          selectedEmailIds.add(checkbox.value);
+        } else {
+          selectedEmailIds.delete(checkbox.value);
+        }
+      });
+
+      updateSelectedEmails();
+    });
+
+    // Publish emails
+    document.getElementById('publishBtn').addEventListener('click', async function () {
+      const emailIdsInput = document.getElementById('emailIds').value;
+      const scheduleTime = null;
+      const resultsSection = document.getElementById('resultsSection');
+      const resultsList = document.getElementById('resultsList');
+
+      // Clear previous results
+      resultsList.innerHTML = '';
+      resultsSection.style.display = 'none';
+
+      // Parse email IDs
+      const emailIds = emailIdsInput.split(',').map(id => id.trim()).filter(id => id);
+
+      if (emailIds.length === 0) {
+        alert('Please select at least one email to publish');
+        return;
+      }
+
+      // Disable button during processing
+      const publishBtn = document.getElementById('publishBtn');
+      publishBtn.disabled = true;
+      publishBtn.textContent = 'Processing...';
+
+      try {
+        // Process each email ID
+        for (const emailId of emailIds) {
+          const resultItem = document.createElement('div');
+          resultItem.className = 'result-item';
+          resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Checking approval status...`;
+          resultsList.appendChild(resultItem);
+          resultsSection.style.display = 'block';
+
+          try {
+            // Check if email is approved
+            const approvalResult = await checkEmailApproval(emailId);
+
+            if (!approvalResult.success) {
+              resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Error checking approval status`;
+              resultItem.classList.add('error');
+              continue;
+            }
+
+            if (!approvalResult.approved) {
+              resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Not approved - cannot publish`;
+              resultItem.classList.add('warning');
+              continue;
+            }
+
+            // If approved, proceed with publishing
+            resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Approved - Processing...`;
+
+            // In a real application, this would call your API
+            // For demonstration, we'll simulate API call with a timeout
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Simulate successful response 90% of the time for approved emails
+            const success = Math.random() > 0.1;
+
+            if (success) {
+              const message = scheduleTime
+                ? `Scheduled for ${new Date(scheduleTime).toLocaleString()}`
+                : 'Published successfully';
+              resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> ${message}`;
+              resultItem.classList.add('success');
+            } else {
+              resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Error - Simulated API failure`;
+              resultItem.classList.add('error');
+            }
+          } catch (error) {
+            resultItem.innerHTML = `<strong>Email ID ${emailId}:</strong> Failed - ${error.message}`;
+            resultItem.classList.add('error');
+          }
+        }
+      } catch (error) {
+        alert('An error occurred: ' + error.message);
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = 'Publish Emails';
+      }
+    });
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+
+      console.log('HubSpot Email Publisher loaded successfully');
+    });
+  </script>
+</body>
+
+</html>

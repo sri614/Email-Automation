@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{pageTitle}}</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  {{!-- Font Awesome for icons --}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  {{!-- sortable cdn --}}
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+
+  {{!-- Header --}}
+  {{#if user}}
+  <header class="header-smooth">
+    <div class="container">
+      <div class="logo">
+        <i class="fas fa-envelope-open-text"></i>
+        <span>BO Emailer</span>
+      </div>
+      <nav class="navbar">
+        <div class="nav-links">
+          <a class="nav-link {{isActive activePage 'create list'}}" href="/">
+            <i class="fas fa-list-ul"></i>
+            <span>Create Lists</span>
+          </a>
+          <a class="nav-link {{isActive activePage 'email cloning'}}" href="/api/cloner">
+            <i class="fas fa-clone"></i>
+            <span>Email Cloning</span>
+          </a>
+          <a class="nav-link {{isActive activePage 'list manager'}}" href="/api/list-manager">
+            <i class="fas fa-list-check"></i>
+            <span>List Manager</span>
+          </a>
+          <a class="nav-link {{isActive activePage 'email publisher'}}" href="/email-publisher">
+            <i class="fas fa-paper-plane"></i>
+            <span>Email Publisher</span>
+          </a>
+          <a class="nav-link {{isActive activePage 'report'}}" href="/report">
+            <i class="fas fa-chart-line"></i>
+            <span>Report</span>
+          </a>
+          <a class="nav-link {{isActive activePage 'logout'}}" href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+{{/if}}
+
+<main class="main dashboard">
+  {{#if isLoginPage}}
+    <div class="login-page">
+      {{{body}}}
+    </div>
+  {{else}}
+    {{{body}}}
+  {{/if}}
+</main>
+
+{{!-- Footer --}}
+  {{!-- <footer>
+    &copy; 2025 BO Emailer. All rights reserved.
+  </footer> --}}
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.getElementById("emailModal");
+      const openBtn = document.getElementById("openFormBtn");
+      const closeBtn = document.getElementById("closeModal");
+
+      if (openBtn && modal && closeBtn) {
+        openBtn.onclick = () => modal.style.display = "block";
+        closeBtn.onclick = () => modal.style.display = "none";
+        window.onclick = e => {
+          if (e.target === modal) modal.style.display = "none";
+        };
+      }
+
+
+
+          // Format display dates
+    document.querySelectorAll(".js-date").forEach(el => {
+      const date = new Date(el.dataset.iso);
+      el.textContent = date.toLocaleDateString("en-GB", {
+        day: "numeric", month: "short", year: "numeric"
+      });
+    });
+
+//list date format
+document.querySelectorAll(".list-date-span").forEach(el => {
+  const iso = el.getAttribute("data-iso"); // get original ISO date from data-attr
+  if (!iso) return; // skip if no ISO available
+
+  const d = new Date(iso);
+  const day = d.getDate();
+  const month = d.toLocaleString('en-US', { month: 'short' });
+  const year = d.getFullYear();
+
+  let hours = d.getHours();
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+
+  el.textContent = `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
+});
+
+
+  // Format created/updated timestamp
+    document.querySelectorAll(".edit-date").forEach(el => {
+      const date = new Date(el.dataset.date);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      el.textContent = `${day}.${month}.${year} ${hours}.${minutes} ${ampm}`;
+    });
+
+
+     // Short campaign name
+    document.querySelectorAll(".campaign").forEach(el => {
+      el.textContent = `${el.textContent.slice(0,18)}`;
+    });
+
+
+    //drag and drop
+   const list = document.getElementById('segmentation-list');
+    const status = document.getElementById('save-status');
+
+    // Only initialize Sortable if the elements exist (they're only on the index page)
+    if (list && status) {
+    new Sortable(list, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',     // Class applied to ghost element
+      chosenClass: 'sortable-chosen',   // Class applied to picked-up item
+      dragClass: 'drag-active',     
+      onEnd: async () => {
+        const ids = [...list.querySelectorAll('.card')].map(el => el.dataset.id);
+        try {
+          const res = await fetch('/api/segmentations/reorder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderedIds: ids })
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            status.textContent = "Order saved!";
+            status.classList.toggle("save-status");
+            status.classList.toggle("disable");
+            setTimeout(() => status.textContent = "", 1500);
+          } else {
+            status.textContent = "Failed to save order.";
+          }
+        } catch (err) {
+          console.error("Error:", err);
+          status.textContent = "Server error.";
+        }
+      }
+    });
+    }
+
+    });
+  </script>
+
+</body>
+</html>

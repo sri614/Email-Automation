@@ -1,0 +1,116 @@
+<div class="dashboard">
+  <h1>Reports Dashboard</h1>
+  
+  <div class="mb-20">
+    <div class="filter-container">
+      <div class="filter-dropdown">
+        <label for="reportFilter">Report Type:</label>
+        <select id="reportFilter" class="filter-select">
+          <option value="all">All Reports</option>
+          <option value="campaigns">Campaign Reports</option>
+          <option value="lists">List Performance</option>
+          <option value="engagement">Engagement Metrics</option>
+        </select>
+      </div>
+      
+      <div class="filter-dropdown">
+        <label for="dateRange">Date Range:</label>
+        <select id="dateRange" class="filter-select">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="quarter">This Quarter</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex" id="reportContainer">
+    <div class="card" style="width: calc(50% - 15px);">
+      <div class="brand">Campaign Performance</div>
+      <div class="campaign">Total campaigns sent this month</div>
+      <div class="box">
+        <div class="count">24</div>
+        <span>Active Campaigns</span>
+      </div>
+      <div class="date">
+        <span>Updated: Today</span>
+      </div>
+    </div>
+
+    <div class="card" style="width: calc(50% - 15px);">
+      <div class="brand">Email Engagement</div>
+      <div class="campaign">Overall engagement metrics</div>
+      <div class="box">
+        <div class="count">78.5%</div>
+        <span>Open Rate</span>
+      </div>
+      <div class="date">
+        <span>Updated: 2 hours ago</span>
+      </div>
+    </div>
+
+    <div class="card" style="width: calc(50% - 15px);">
+      <div class="brand">List Growth</div>
+      <div class="campaign">Subscriber growth statistics</div>
+      <div class="box">
+        <div class="count">+1,247</div>
+        <span>New Subscribers</span>
+      </div>
+      <div class="date">
+        <span>Updated: 1 hour ago</span>
+      </div>
+    </div>
+
+    <div class="card" style="width: calc(50% - 15px);">
+      <div class="brand">Revenue Impact</div>
+      <div class="campaign">Revenue generated from campaigns</div>
+      <div class="box">
+        <div class="count">$15,420</div>
+        <span>This Month</span>
+      </div>
+      <div class="date">
+        <span>Updated: Today</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-20" style="margin-top: 30px;">
+    <h3>Recent Activity</h3>
+    <div class="card" style="width: 100%;">
+      <div class="list">Campaign "Summer Sale 2024" - Sent to 5,642 recipients</div>
+      <div class="list-date">2 hours ago</div>
+      
+      <div class="list">List "VIP Customers" updated with 23 new subscribers</div>
+      <div class="list-date">4 hours ago</div>
+      
+      <div class="list">Automation "Welcome Series" completed for 156 new users</div>
+      <div class="list-date">6 hours ago</div>
+      
+      <div class="list">Report "Monthly Performance" generated successfully</div>
+      <div class="list-date">1 day ago</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Filter functionality
+  const reportFilter = document.getElementById('reportFilter');
+  const dateRange = document.getElementById('dateRange');
+  
+  if (reportFilter) {
+    reportFilter.addEventListener('change', function() {
+      console.log('Report filter changed to:', this.value);
+      // Add filtering logic here
+    });
+  }
+  
+  if (dateRange) {
+    dateRange.addEventListener('change', function() {
+      console.log('Date range changed to:', this.value);
+      // Add date filtering logic here
+    });
+  }
+});
+</script>

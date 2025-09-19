@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Publisher Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --light-bg: #ecf0f1;
+      --dark-text: #2c3e50;
+      --light-text: #7f8c8d;
+      --border-light: #bdc3c7;
+      --hover-bg: #f8f9fa;
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+      --transition-speed: 0.3s;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--light-bg) 0%, #f5f9ff 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      color: var(--dark-text);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .panel {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      flex: 1;
+      min-width: 300px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .left-panel {
+      flex: 2;
+    }
+
+    .right-panel {
+      flex: 1;
+    }
+
+    .email-publisher-container {
+      min-height: calc(100vh - 80px);
+      padding: 20px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .dashboard-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    /* Page Header */
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-header h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+      color: white;
+    }
+
+    .page-header .subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 0;
+      min-height: 600px;
+    }
+
+    /* Left Panel */
+    .left-panel {
+      padding: 40px;
+      border-right: 1px solid var(--border-light);
+      background: white;
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      background: var(--light-bg);
+      padding: 40px 30px;
+    }
+
+    /* Section Headers */
+    .section-header {
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 15px;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--secondary-color);
+      border-radius: 2px;
+      animation: slideRight 0.5s ease-out;
+    }
+
+    /* Filter Section */
+    .filter-section {
+      background: var(--light-bg);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-controls .form-select {
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 10px 15px;
+      transition: all var(--transition-speed);
+      background: white;
+    }
+
+    .filter-controls .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .btn-primary-custom {
+      background: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all var(--transition-speed);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary-custom:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Email List */
+    .email-list-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      background: white;
+      padding: 10px;
+    }
+
+    .email-list-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .email-list-container::-webkit-scrollbar-track {
+      background: var(--light-bg);
+      border-radius: 10px;
+    }
+
+    .email-list-container::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 10px;
+      transition: background var(--transition-speed);
+    }
+
+    .email-list-container::-webkit-scrollbar-thumb:hover {
+      background: var(--light-text);
+    }
+
+    .email-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: var(--light-bg);
+      transition: all var(--transition-speed);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .email-item:hover {
+      background: var(--hover-bg);
+      transform: translateX(5px);
+    }
+
+    .email-item.selected {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border-left: 3px solid var(--secondary-color);
+    }
+
+    .email-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      transition: transform var(--transition-speed);
+    }
+
+    .email-checkbox:checked {
+      transform: scale(1.1);
+    }
+
+    .email-details {
+      flex: 1;
+    }
+
+    .email-name {
+      font-weight: 500;
+      color: var(--dark-text);
+      margin-bottom: 4px;
+    }
+
+    .email-id {
+      font-size: 0.875rem;
+      color: var(--light-text);
+    }
+
+    .email-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: var(--secondary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    /* Selected Emails Panel */
+    .selected-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border-light);
+    }
+
+    .selected-count {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: var(--light-bg);
+      border-radius: 8px;
+    }
+
+    .selected-count span {
+      font-weight: 500;
+      color: var(--dark-text);
+    }
+
+    .selected-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .selected-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--hover-bg);
+      border-radius: 6px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .remove-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform var(--transition-speed);
+    }
+
+    .remove-btn:hover {
+      transform: rotate(90deg);
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: var(--dark-text);
+      font-size: 0.95rem;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      transition: all var(--transition-speed);
+      font-size: 0.95rem;
+    }
+
+    .form-control-custom:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .form-text {
+      font-size: 0.875rem;
+      color: var(--light-text);
+      margin-top: 5px;
+    }
+
+    /* Publish Button */
+    .btn-publish {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent-color) 0%, #c0392b 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .btn-publish:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-publish:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Results Section */
+    .results-container {
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    .result-item {
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .result-item.success {
+      background: rgba(39, 174, 96, 0.1);
+      border-left: 3px solid var(--success-color);
+    }
+
+    .result-item.error {
+      background: rgba(231, 76, 60, 0.1);
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .result-item.processing {
+      background: rgba(52, 152, 219, 0.1);
+      border-left: 3px solid var(--secondary-color);
+    }
+
+    /* Loading Spinner */
+    .spinner-border-sm {
+      width: 1rem;
+      height: 1rem;
+      border-width: 2px;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--light-bg) 0%, white 100%);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition-speed);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--light-text);
+      margin-top: 5px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideRight {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 60px;
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      50% {
+        transform: rotate(180deg);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .dashboard-content {
+        grid-template-columns: 1fr;
+      }
+
+      .right-sidebar {
+        border-top: 1px solid var(--border-light);
+        border-left: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .left-panel,
+      .right-sidebar {
+        padding: 20px;
+      }
+
+      .filter-controls {
+        flex-direction: column;
+      }
+
+      .filter-controls .form-select {
+        width: 100%;
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Utility Classes */
+    .mt-3 {
+      margin-top: 1rem;
+    }
+
+    .mb-3 {
+      margin-bottom: 1rem;
+    }
+
+    .text-muted {
+      color: var(--light-text);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .d-none {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-publisher-container">
+    <div class="dashboard-wrapper">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1><i class="bi bi-envelope-fill"></i> Email Publisher</h1>
+        <p class="subtitle">Professional Email Campaign Management System</p>
+      </div>
+
+      <!-- Main Content -->
+      <div class="dashboard-content">
+        <!-- Left Panel -->
+        <div class="left-panel">
+          <!-- Statistics -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-value" id="totalEmails">0</div>
+              <div class="stat-label">Total Emails</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="selectedCount">0</div>
+              <div class="stat-label">Selected</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="publishedCount">0</div>
+              <div class="stat-label">Published</div>
+            </div>
+          </div>
+
+          <!-- Filter Section -->
+          <div class="section-header">
+            <h2><i class="bi bi-funnel"></i> Filter Emails</h2>
+          </div>
+
+          <div class="filter-section">
+            <div class="filter-controls">
+              <select class="form-select" id="dateFilter">
+                <option value="today">Today</option>
+                <option value="t1">Tomorrow (T+1)</option>
+                <option value="t2">T+2</option>
+                <option value="t3">T+3</option>
+                <option value="t4">T+4</option>
+              </select>
+              <button class="btn-primary-custom" id="loadEmailsBtn">
+                <i class="bi bi-arrow-clockwise"></i> Load Emails
+              </button>
+            </div>
+            <div class="mt-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll">
+                <label class="form-check-label" for="selectAll">
+                  Select All Emails
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email List -->
+          <div class="section-header">
+            <h2><i class="bi bi-inbox"></i> Available Emails</h2>
+          </div>
+
+          <div class="email-list-container" id="emailList">
+            <div class="text-center text-muted" style="padding: 40px;">
+              <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+              <p class="mt-3">No emails loaded. Please select a date filter and load emails.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+          <!-- Selected Emails -->
+          <div class="section-header">
+            <h2><i class="bi bi-check2-square"></i> Selection</h2>
+          </div>
+
+          <div class="selected-panel">
+            <div class="selected-count">
+              <span>Selected Emails</span>
+              <span class="badge bg-primary" id="selectedBadge">0</span>
+            </div>
+            <div class="selected-list" id="selectedEmailsList">
+              <div class="text-center text-muted">
+                No emails selected
+              </div>
+            </div>
+          </div>
+
+          <!-- Publishing Options -->
+          <div class="section-header">
+            <h2><i class="bi bi-gear"></i> Publishing Options</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="emailIdsInput">
+              <i class="bi bi-list-ul"></i> Email IDs
+            </label>
+            <input type="text" class="form-control-custom" id="emailIdsInput"
+              placeholder="Auto-populated from selection">
+            <small class="form-text">IDs are automatically added when you select emails</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="scheduleTime">
+              <i class="bi bi-clock"></i> Schedule Time (Optional)
+            </label>
+            <input type="datetime-local" class="form-control-custom" id="scheduleTime">
+            <small class="form-text">Leave empty to publish immediately</small>
+          </div>
+
+          <!-- Publish Button -->
+          <button class="btn-publish" id="publishBtn">
+            <i class="bi bi-send"></i> Publish Campaign
+          </button>
+
+          <!-- Results -->
+          <div class="results-container d-none" id="resultsSection">
+            <div class="section-header">
+              <h2><i class="bi bi-check-circle"></i> Results</h2>
+            </div>
+            <div id="resultsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper to format date to YYYY-MM-DD (for comparison)
+    function formatDate(date) {
+      const d = new Date(date);
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    // Robust extractDateFromEmailName
+    function extractDateFromEmailName(name) {
+      if (!name) return null;
+      const dateFormats = [
+        // Match "11 Sep 2025" or "1 Sep 2025"
+        {
+          regex: /(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/, handler: (match) => {
+            const months = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
+            const monthNum = months[match[2]];
+            if (monthNum !== undefined) {
+              const year = parseInt(match[3]);
+              const month = monthNum;
+              const day = parseInt(match[1]);
+              const date = new Date(year, month, day, 12, 0, 0);
+              return date;
+            }
+            return null;
+          }
+        },
+        // Match "Sep 11 2025" or "Sep 1 2025"
+        {
+          regex: /([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/, handler: (match) => {
+            const months = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
+            const monthNum = months[match[1]];
+            if (monthNum !== undefined) {
+              const year = parseInt(match[3]);
+              const month = monthNum;
+              const day = parseInt(match[2]);
+              const date = new Date(year, month, day, 12, 0, 0);
+              return date;
+            }
+            return null;
+          }
+        },
+        // Match "11/09/2025" or "9/11/2025"
+        {
+          regex: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, handler: (match) => {
+            const year = parseInt(match[3]);
+            const month = parseInt(match[2]) - 1;
+            const day = parseInt(match[1]);
+            return new Date(year, month, day, 12, 0, 0);
+          }
+        },
+        // Match "2025-09-11"
+        {
+          regex: /(\d{4})-(\d{1,2})-(\d{1,2})/, handler: (match) => {
+            const year = parseInt(match[1]);
+            const month = parseInt(match[2]) - 1;
+            const day = parseInt(match[3]);
+            return new Date(year, month, day, 12, 0, 0);
+          }
+        }
+      ];
+      for (const format of dateFormats) {
+        const match = name.match(format.regex);
+        if (match) {
+          const date = format.handler(match);
+          if (date && !isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Mock data for demonstration
+    const mockEmails = [
+      { clonedEmailId: "EM001", clonedEmailName: "Newsletter 15 Sep 2023", name: "Newsletter 15 Sep 2023", scheduledTime: "2023-09-15T12:00:00Z" },
+      { clonedEmailId: "EM002", clonedEmailName: "Promotion 16 Sep 2023", name: "Promotion 16 Sep 2023", scheduledTime: "2023-09-16T12:00:00Z" },
+      { clonedEmailId: "EM003", clonedEmailName: "Update 17 Sep 2023", name: "Update 17 Sep 2023", scheduledTime: "2023-09-17T12:00:00Z" },
+      { clonedEmailId: "EM004", clonedEmailName: "Weekly Digest 18 Sep 2023", name: "Weekly Digest 18 Sep 2023", scheduledTime: "2023-09-18T12:00:00Z" },
+      { clonedEmailId: "EM005", clonedEmailName: "Special Offer 19 Sep 2023", name: "Special Offer 19 Sep 2023", scheduledTime: "2023-09-19T12:00:00Z" }
+    ];
+
+    // Store the current email data
+    let currentEmails = [];
+    let selectedEmailIds = new Set();
+
+    // Function to update the selected emails display
+    function updateSelectedEmails() {
+      const selectedEmailsContainer = document.getElementById('selectedEmailsList');
+      const emailIdsInput = document.getElementById('emailIdsInput');
+      const selectedBadge = document.getElementById('selectedBadge');
+      const selectedCount = document.getElementById('selectedCount');
+
+      // Clear the current display
+      selectedEmailsContainer.innerHTML = '';
+
+      if (selectedEmailIds.size === 0) {
+        selectedEmailsContainer.innerHTML = '<div class="text-center text-muted">No emails selected</div>';
+        selectedBadge.textContent = '0';
+        selectedCount.textContent = '0';
+        return;
+      }
+
+      // Create elements for each selected email
+      selectedEmailIds.forEach(emailId => {
+        const email = currentEmails.find(e => e.clonedEmailId === emailId);
+        const emailDiv = document.createElement('div');
+        emailDiv.className = 'selected-item';
+        emailDiv.innerHTML = `
+          <span>${email ? email.clonedEmailName : emailId}</span>
+          <button class="remove-btn" data-id="${emailId}">×</button>
+        `;
+        selectedEmailsContainer.appendChild(emailDiv);
+      });
+
+      // Update the input field with comma-separated IDs
+      emailIdsInput.value = Array.from(selectedEmailIds).join(', ');
+
+      // Update badge and count
+      selectedBadge.textContent = selectedEmailIds.size;
+      selectedCount.textContent = selectedEmailIds.size;
+
+      // Add event listeners to remove buttons
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const idToRemove = this.getAttribute('data-id');
+          selectedEmailIds.delete(idToRemove);
+
+          // Also uncheck the checkbox in the email list
+          const checkbox = document.querySelector(`.email-item input[value="${idToRemove}"]`);
+          if (checkbox) {
+            checkbox.checked = false;
+          }
+
+          updateSelectedEmails();
+          updateSelectAllCheckbox();
+        });
+      });
+    }
+
+    // Function to update the select all checkbox state
+    function updateSelectAllCheckbox() {
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const emailCheckboxes = document.querySelectorAll('.email-item input[type="checkbox"]');
+
+      if (emailCheckboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.disabled = true;
+        return;
+      }
+
+      selectAllCheckbox.disabled = false;
+
+      const allChecked = Array.from(emailCheckboxes).every(checkbox => checkbox.checked);
+      const someChecked = Array.from(emailCheckboxes).some(checkbox => checkbox.checked);
+
+      selectAllCheckbox.checked = allChecked;
+      selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    }
+
+    // Load emails based on selected filter
+    document.getElementById('loadEmailsBtn').addEventListener('click', async function () {
+      const totalEmails = document.getElementById('totalEmails');
+      const emailList = document.getElementById('emailList');
+      totalEmails.textContent = `0`;
+      emailList.innerHTML = '<div class="text-center text-muted">Loading emails...</div>';
+
+      const filter = document.getElementById('dateFilter').value;
+
+      // Calculate the target date string (YYYY-MM-DD) for the filter
+      const today = new Date();
+      let offset = 0;
+      if (filter === 'today') offset = 0;
+      else if (filter === 't1') offset = 1;
+      else if (filter === 't2') offset = 2;
+      else if (filter === 't3') offset = 3;
+      else if (filter === 't4') offset = 4;
+
+      // Set time to noon to avoid timezone issues
+      const targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset, 12, 0, 0);
+      const targetDateStr = formatDate(targetDate);
+
+      try {
+        // Try to fetch from the actual API
+        const res = await fetch('/api/cloned-emails');
+
+        if (!res.ok) {
+          // If the endpoint doesn't exist, use mock data
+          console.warn('API endpoint /api/cloned-emails not found, using mock data');
+
+          // Filter mock emails by extracted date
+          currentEmails = mockEmails.filter(e => {
+            let extracted = extractDateFromEmailName(e.name);
+            if (!extracted && e.scheduledTime) {
+              // fallback to scheduledTime (assume ISO string)
+              extracted = formatDate(e.scheduledTime);
+            }
+            return extracted === targetDateStr;
+          });
+        } else {
+          // Use the actual API data
+          const data = await res.json();
+
+          if (data.success && Array.isArray(data.data)) {
+            // Filter emails by extracted date (from name or scheduledTime)
+            currentEmails = data.data.filter(e => {
+              let extracted = extractDateFromEmailName(e.name);
+              if (!extracted && e.scheduledTime) {
+                // fallback to scheduledTime (assume ISO string)
+                extracted = formatDate(e.scheduledTime);
+              }
+              return extracted === targetDateStr;
+            });
+          } else {
+            currentEmails = [];
+          }
+        }
+
+        // Clear previous selections when loading new emails
+        selectedEmailIds.clear();
+        updateSelectedEmails();
+
+        if (currentEmails.length > 0) {
+          // Create email items
+          emailList.innerHTML = '';
+          currentEmails.forEach(email => {
+            const item = document.createElement('div');
+            item.className = 'email-item';
+            item.innerHTML = `
+              <input type="checkbox" class="email-checkbox" value="${email.clonedEmailId}">
+              <div class="email-details">
+                <div class="email-name">${email.clonedEmailName || 'Unnamed Email'}</div>
+                <div class="email-id">ID: ${email.clonedEmailId}</div>
+              </div>
+              <span class="email-badge">${filter}</span>
+            `;
+            emailList.appendChild(item);
+          });
+
+          // Add event listeners to checkboxes
+          document.querySelectorAll('.email-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+              if (this.checked) {
+                selectedEmailIds.add(this.value);
+              } else {
+                selectedEmailIds.delete(this.value);
+              }
+              updateSelectedEmails();
+              updateSelectAllCheckbox();
+            });
+          });
+
+          totalEmails.textContent = currentEmails.length;
+        } else {
+          emailList.innerHTML = `
+            <div class="text-center text-muted" style="padding: 40px;">
+              <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+              <p class="mt-3">No emails found for ${targetDateStr}</p>
+            </div>
+          `;
+          totalEmails.textContent = '0';
+        }
+      } catch (e) {
+        console.error(e);
+        emailList.innerHTML = `
+          <div class="text-center text-muted" style="padding: 40px;">
+            <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+            <p class="mt-3">Error loading emails. Please try again.</p>
+          </div>
+        `;
+      }
+
+      updateSelectAllCheckbox();
+    });
+
+    // Select all functionality
+    document.getElementById('selectAll').addEventListener('change', function () {
+      const checkboxes = document.querySelectorAll('.email-item input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+
+        if (this.checked) {
+          selectedEmailIds.add(checkbox.value);
+        } else {
+          selectedEmailIds.delete(checkbox.value);
+        }
+      });
+
+      updateSelectedEmails();
+    });
+
+    // Publish emails
+    document.getElementById('publishBtn').addEventListener('click', async function () {
+      const emailIdsInput = document.getElementById('emailIdsInput').value;
+      const scheduleTimeInput = document.getElementById('scheduleTime');
+      const scheduleTime = scheduleTimeInput.value || null;
+      const resultsSection = document.getElementById('resultsSection');
+      const resultsList = document.getElementById('resultsList');
+      const publishedCount = document.getElementById('publishedCount');
+
+      // Clear previous results
+      resultsList.innerHTML = '';
+      resultsSection.classList.add('d-none');
+
+      // Parse email IDs
+      const emailIds = emailIdsInput.split(',').map(id => id.trim()).filter(id => id);
+
+      if (emailIds.length === 0) {
+        alert('Please enter at least one valid email ID');
+        return;
+      }
+
+      // Disable button during processing
+      const publishBtn = document.getElementById('publishBtn');
+      publishBtn.disabled = true;
+      publishBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+
+      try {
+        // Show results section
+        resultsSection.classList.remove('d-none');
+
+        // Process each email ID
+        let successCount = 0;
+        for (const emailId of emailIds) {
+          const resultItem = document.createElement('div');
+          resultItem.className = 'result-item processing';
+          resultItem.innerHTML = `<i class="bi bi-hourglass-split"></i> <strong>Email ID ${emailId}:</strong> Processing...`;
+          resultsList.appendChild(resultItem);
+
+          try {
+            // Publish or schedule the email directly
+            const response = await fetch('/api/publish-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                emailId,
+                scheduleTime: scheduleTime || null
+              })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              const message = scheduleTime
+                ? `Scheduled for ${new Date(scheduleTime).toLocaleString()}`
+                : 'Published successfully';
+
+              resultItem.className = 'result-item success';
+              resultItem.innerHTML = `<i class="bi bi-check-circle"></i> <strong>Email ID ${emailId}:</strong> ${message}`;
+              successCount++;
+            } else {
+              resultItem.className = 'result-item error';
+              resultItem.innerHTML = `<i class="bi bi-exclamation-circle"></i> <strong>Email ID ${emailId}:</strong> ${data.message || 'Failed to publish'}`;
+            }
+          } catch (error) {
+            resultItem.className = 'result-item error';
+            resultItem.innerHTML = `<i class="bi bi-exclamation-circle"></i> <strong>Email ID ${emailId}:</strong> Network error - ${error.message}`;
+          }
+
+          // Add a small delay between requests for better UX
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Update published count
+        const currentCount = parseInt(publishedCount.textContent) || 0;
+        publishedCount.textContent = currentCount + successCount;
+
+        // Show summary
+        const summaryItem = document.createElement('div');
+        summaryItem.className = 'result-item';
+        summaryItem.style.background = 'transparent';
+        summaryItem.style.borderLeft = 'none';
+        summaryItem.style.fontWeight = 'bold';
+        summaryItem.innerHTML = `<i class="bi ${successCount === emailIds.length ? 'bi-check-circle text-success' : successCount > 0 ? 'bi-info-circle text-warning' : 'bi-x-circle text-danger'}"></i> Processed ${emailIds.length} emails, ${successCount} successful`;
+        resultsList.appendChild(summaryItem);
+
+      } catch (error) {
+        console.error('Publishing error:', error);
+      } finally {
+        // Re-enable button
+        publishBtn.disabled = false;
+        publishBtn.innerHTML = '<i class="bi bi-send"></i> Publish Campaign';
+      }
+    });
+
+    // Initialize datetime-local input with current time
+    document.getElementById('scheduleTime').value = new Date().toISOString().slice(0, 16);
+
+    // Add event listener for individual email item clicks (not just checkbox)
+    document.addEventListener('click', function (e) {
+      const emailItem = e.target.closest('.email-item');
+      if (emailItem && !e.target.matches('input[type="checkbox"]')) {
+        const checkbox = emailItem.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          if (checkbox.checked) {
+            selectedEmailIds.add(checkbox.value);
+          } else {
+            selectedEmailIds.delete(checkbox.value);
+          }
+          updateSelectedEmails();
+          updateSelectAllCheckbox();
+        }
+      }
+    });
+
+    // Auto-scroll to results when publishing
+    const observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const resultsSection = document.getElementById('resultsSection');
+          if (!resultsSection.classList.contains('d-none')) {
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    observer.observe(document.getElementById('resultsSection'), {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function () {
+      // Load today's emails by default
+      document.getElementById('loadEmailsBtn').click();
+
+      // Add some sample results for demonstration
+      setTimeout(() => {
+        // This is just for demo purposes - would be removed in production
+        if (window.location.search.includes('demo=true')) {
+          const resultsSection = document.getElementById('resultsSection');
+          const resultsList = document.getElementById('resultsList');
+
+          resultsSection.classList.remove('d-none');
+          resultsList.innerHTML = `
+            <div class="result-item success">
+              <i class="bi bi-check-circle"></i> <strong>Email ID EM001:</strong> Published successfully
+            </div>
+            <div class="result-item success">
+              <i class="bi bi-check-circle"></i> <strong>Email ID EM002:</strong> Scheduled for ${new Date(Date.now() + 86400000).toLocaleString()}
+            </div>
+            <div class="result-item error">
+              <i class="bi bi-exclamation-circle"></i> <strong>Email ID EM003:</strong> Email template not found
+            </div>
+          `;
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+
+</html>
