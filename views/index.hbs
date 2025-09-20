@@ -5,7 +5,7 @@
     <i class="fas fa-list-ul" style="color: #067be1; margin-right: 15px;"></i>List Creator
   </h1>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+  <div class="control-panel" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
     <div style="display: flex; align-items: center; gap: 12px;">
       <label for="globalDatePicker" style="font-weight: 600; color: #333; font-size: 15px;">Set Date for All Lists:</label>
       <input type="date" id="globalDatePicker" class="date-picker-input" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; background-color: white;">
@@ -840,3 +840,400 @@
     });
   });
 </script>
+
+<style>
+  /* Enhanced interactions and micro-animations */
+  .control-panel {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .control-panel:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+    transform: translateY(-1px);
+  }
+
+  .control-panel input[type="date"]:focus,
+  .control-panel select:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
+  }
+
+  .card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+  }
+
+  .card:hover::before {
+    left: 100%;
+  }
+
+  .card .btns button {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card .btns button:hover {
+    transform: scale(1.1);
+  }
+
+  .card .btns button:active {
+    transform: scale(0.95);
+  }
+
+  /* Enhanced filter animations */
+  .filter-dropdown select {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .filter-dropdown select:hover {
+    border-color: #067be1;
+    box-shadow: 0 2px 8px rgba(6, 123, 225, 0.15);
+  }
+
+  /* Smooth list animations */
+  .created-lists {
+    scroll-behavior: smooth;
+  }
+
+  .list.flex-bn {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .list.flex-bn:hover {
+    background-color: rgba(6, 123, 225, 0.05);
+    transform: translateX(5px);
+  }
+
+  /* Enhanced modal interactions */
+  #emailModal {
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  #emailModal input:focus,
+  #emailModal select:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
+  }
+
+  /* Floating action feedback */
+  #save-status {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transform: translateZ(0);
+  }
+
+  #save-status.save-status {
+    animation: statusPulse 0.6s ease-out;
+  }
+
+  @keyframes statusPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  /* Enhanced search interactions */
+  .searchInput {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .searchInput:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
+  }
+
+  /* Smooth button loading states */
+  .btn-primary.loading {
+    animation: buttonPulse 1.5s infinite;
+  }
+
+  @keyframes buttonPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Enhanced drag feedback */
+  .card[draggable="true"] {
+    cursor: grab;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .card[draggable="true"]:active {
+    cursor: grabbing;
+  }
+
+  /* Smooth dialog animations */
+  .custom-dialog-overlay {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .custom-dialog {
+    animation: dialogBounceIn 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  @keyframes dialogBounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(-50px);
+    }
+    80% {
+      opacity: 1;
+      transform: scale(1.05) translateY(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Mobile Responsive Styles for Index Page */
+  @media (max-width: 768px) {
+    .control-panel {
+      flex-direction: column !important;
+      gap: 20px;
+      padding: 15px !important;
+    }
+
+    .control-panel > div {
+      width: 100%;
+      flex-direction: column !important;
+      gap: 15px !important;
+    }
+
+    .control-panel label {
+      display: block;
+      margin-bottom: 5px;
+      width: 100%;
+    }
+
+    .control-panel input[type="date"],
+    .control-panel select {
+      width: 100% !important;
+      min-width: unset !important;
+    }
+
+    .control-panel button {
+      width: 100% !important;
+      margin-top: 5px;
+    }
+
+    #segmentation-list {
+      flex-direction: column;
+      gap: 15px !important;
+    }
+
+    .card {
+      width: 100% !important;
+      min-width: unset !important;
+    }
+
+    .flex-box {
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+
+    .box {
+      width: 100% !important;
+      padding: 10px !important;
+      text-align: left !important;
+    }
+
+    /* Modal responsive */
+    #emailModal .modal-content {
+      width: 95% !important;
+      max-width: none !important;
+      margin: 10px !important;
+      padding: 20px !important;
+    }
+
+    #emailModal input,
+    #emailModal select {
+      width: 100% !important;
+      font-size: 16px !important;
+    }
+
+    /* List section responsive */
+    .created-lists {
+      height: 300px !important;
+    }
+
+    .list.flex-bn {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+      padding: 10px !important;
+    }
+
+    .list p {
+      width: 100% !important;
+      font-size: 14px !important;
+    }
+
+    /* Search bar responsive */
+    .searchInput {
+      width: 100% !important;
+      margin-bottom: 10px;
+    }
+
+    /* Filter dropdown responsive */
+    .filter-dropdown {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 5px;
+    }
+
+    .filter-dropdown label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    .filter-dropdown select {
+      width: 100% !important;
+    }
+
+    /* Save status position on mobile */
+    #save-status {
+      position: fixed !important;
+      top: 70px !important;
+      left: 10px !important;
+      right: 10px !important;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px;
+      border-radius: 5px;
+      z-index: 100;
+    }
+
+    /* Dialog responsive */
+    .custom-dialog {
+      width: 95% !important;
+      max-width: none !important;
+    }
+
+    /* Cards drag indicator */
+    .card[draggable="true"] {
+      position: relative;
+      padding-top: 25px !important;
+    }
+
+    .card[draggable="true"]::before {
+      content: "⋮⋮";
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #999;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header__menu h1 {
+      font-size: 22px !important;
+    }
+
+    .header__menu h1 i {
+      font-size: 20px !important;
+      margin-right: 8px !important;
+    }
+
+    .control-panel {
+      padding: 10px !important;
+    }
+
+    .card {
+      padding: 10px !important;
+    }
+
+    .card p {
+      font-size: 12px !important;
+    }
+
+    .card .brand {
+      font-size: 14px !important;
+    }
+
+    .card .btns button {
+      padding: 5px !important;
+    }
+
+    .emailCount {
+      font-size: 14px !important;
+      text-align: center !important;
+    }
+
+    /* Modal on small screens */
+    #emailModal .modal-content {
+      height: 100vh !important;
+      width: 100% !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      overflow-y: auto;
+    }
+
+    #emailModal h2 {
+      font-size: 18px !important;
+    }
+
+    /* List view on small screens */
+    .list.sticky {
+      position: relative !important;
+    }
+
+    .list-id,
+    .list-name,
+    .list-date {
+      font-size: 12px !important;
+    }
+  }
+
+  /* Touch-friendly adjustments */
+  @media (hover: none) and (pointer: coarse) {
+    .card {
+      cursor: grab;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    button, .btn-primary {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    input[type="date"],
+    select {
+      min-height: 44px;
+    }
+  }
+
+  /* Landscape mode for mobile */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .control-panel {
+      flex-direction: row !important;
+      flex-wrap: wrap;
+    }
+
+    .control-panel > div {
+      width: 48%;
+    }
+
+    .created-lists {
+      height: 250px !important;
+    }
+  }
+</style>

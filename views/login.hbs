@@ -194,14 +194,203 @@
     }
 
     /* Responsive adjustments */
-    @media (max-width: 500px) {
+    @media (max-width: 768px) {
+      .login-page {
+        padding: 15px;
+        min-height: 100vh;
+      }
+
       .container-login {
+        max-width: 100%;
         margin: 0;
-        padding: 20px;
+        padding: 25px;
+        border-radius: 8px;
       }
 
       .form .title {
         font-size: 24px;
+        margin-bottom: 25px;
+      }
+
+      .input-field {
+        margin-top: 25px;
+      }
+
+      .input-field input {
+        padding: 0 30px;
+        font-size: 15px;
+      }
+
+      .input-field i {
+        font-size: 20px;
+      }
+
+      .button input {
+        padding: 14px 0;
+        font-size: 16px;
+      }
+
+      .login-signup {
+        margin-top: 25px;
+        font-size: 15px;
+      }
+
+      .form .text {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-page {
+        padding: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .container-login {
+        padding: 20px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .form .title {
+        font-size: 22px;
+        margin-bottom: 20px;
+      }
+
+      .input-field {
+        height: 48px;
+        margin-top: 20px;
+      }
+
+      .input-field input {
+        padding: 0 25px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        height: 100%;
+      }
+
+      .input-field i {
+        font-size: 18px;
+      }
+
+      .input-field i.icon {
+        left: 0;
+        padding-left: 5px;
+      }
+
+      .input-field i.showHidePw {
+        right: 5px;
+        padding: 8px;
+      }
+
+      .button {
+        margin-top: 25px;
+      }
+
+      .button input {
+        padding: 12px 0;
+        font-size: 15px;
+        border-radius: 8px;
+        min-height: 44px; /* Touch-friendly */
+      }
+
+      .login-signup {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .form .text {
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      /* Error message responsive */
+      .error-message {
+        padding: 8px !important;
+        margin-bottom: 12px !important;
+        font-size: 13px !important;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .container-login {
+        padding: 15px;
+      }
+
+      .form .title {
+        font-size: 20px;
+      }
+
+      .input-field {
+        margin-top: 18px;
+      }
+
+      .input-field input {
+        padding: 0 20px;
+        font-size: 16px;
+      }
+
+      .button input {
+        font-size: 14px;
+      }
+
+      .form .text {
+        font-size: 13px;
+      }
+    }
+
+    /* Touch-friendly adjustments */
+    @media (hover: none) and (pointer: coarse) {
+      .input-field input {
+        min-height: 44px;
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+
+      .button input {
+        min-height: 44px;
+      }
+
+      .input-field i.showHidePw {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* Landscape mode for mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .login-page {
+        padding: 20px 5px;
+      }
+
+      .container-login {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .form .title {
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+
+      .input-field {
+        margin-top: 15px;
+      }
+
+      .button {
+        margin-top: 20px;
+      }
+
+      .login-signup {
+        margin-top: 15px;
+      }
+    }
+
+    /* High DPI/Retina displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .container-login {
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
       }
     }
   </style>

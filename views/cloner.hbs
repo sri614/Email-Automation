@@ -53,34 +53,34 @@
       </div>
     </div>
 
-   <!-- Update the custom time options section -->
-<div id="customTimeOptions" class="hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-  <h4 class="font-semibold text-gray-800 flex items-center">
-    <i class="fas fa-cog mr-2 text-indigo-500"></i>
-    Custom Timing Configuration
-  </h4>
-  <div class="grid grid-cols-3 gap-4">
-    <div>
-      <label for="startHour" class="block text-sm font-medium text-gray-700">Start Hour (0-23)</label>
-      <input type="number" id="startHour" min="0" max="23" value="11" 
-             class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+    <!-- Update the custom time options section -->
+    <div id="customTimeOptions" class="hidden space-y-4 p-4 bg-gray-50 rounded-lg">
+      <h4 class="font-semibold text-gray-800 flex items-center">
+        <i class="fas fa-cog mr-2 text-indigo-500"></i>
+        Custom Timing Configuration
+      </h4>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label for="startHour" class="block text-sm font-medium text-gray-700">Start Hour (0-23)</label>
+          <input type="number" id="startHour" min="0" max="23" value="11"
+            class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label for="startMinute" class="block text-sm font-medium text-gray-700">Start Minute (0-59)</label>
+          <input type="number" id="startMinute" min="0" max="59" value="0"
+            class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label for="interval" class="block text-sm font-medium text-gray-700">Interval (minutes)</label>
+          <input type="number" id="interval" min="1" max="60" value="5"
+            class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+      </div>
+      <div class="text-sm text-gray-600 bg-blue-50 p-2 rounded-md">
+        <i class="fas fa-info-circle mr-1 text-blue-500"></i>
+        Example: Start at 14:30 with 10-minute intervals → 14:30, 14:40, 14:50, 15:00, etc.
+      </div>
     </div>
-    <div>
-      <label for="startMinute" class="block text-sm font-medium text-gray-700">Start Minute (0-59)</label>
-      <input type="number" id="startMinute" min="0" max="59" value="0" 
-             class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-    </div>
-    <div>
-      <label for="interval" class="block text-sm font-medium text-gray-700">Interval (minutes)</label>
-      <input type="number" id="interval" min="1" max="60" value="5" 
-             class="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-    </div>
-  </div>
-  <div class="text-sm text-gray-600 bg-blue-50 p-2 rounded-md">
-    <i class="fas fa-info-circle mr-1 text-blue-500"></i>
-    Example: Start at 14:30 with 10-minute intervals → 14:30, 14:40, 14:50, 15:00, etc.
-  </div>
-</div>
 
     <div class="pt-4">
       <button type="submit" id="submitBtn"
@@ -174,192 +174,194 @@
     </div>
     <div class="custom-dialog-footer">
       <button id="dialogConfirmBtn" class="dialog-btn dialog-btn-primary" onclick="closeDialog()">OK</button>
-      <button id="dialogCancelBtn" class="dialog-btn dialog-btn-secondary" onclick="closeDialog()" style="display: none;">Cancel</button>
+      <button id="dialogCancelBtn" class="dialog-btn dialog-btn-secondary" onclick="closeDialog()"
+        style="display: none;">Cancel</button>
     </div>
   </div>
 </div>
 
 <style>
-/* Custom Dialog Styles */
-.custom-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  cursor: not-allowed;
-}
-
-.custom-dialog-overlay.show {
-  opacity: 1;
-}
-
-.custom-dialog {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 450px;
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
-  animation: dialogSlideIn 0.3s ease forwards;
-  cursor: default;
-}
-
-@keyframes dialogSlideIn {
-  from {
-    transform: translateY(-30px) scale(0.95);
+  /* Custom Dialog Styles */
+  .custom-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: not-allowed;
   }
-  to {
-    transform: translateY(0) scale(1);
+
+  .custom-dialog-overlay.show {
     opacity: 1;
   }
-}
 
-.custom-dialog-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .custom-dialog {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    animation: dialogSlideIn 0.3s ease forwards;
+    cursor: default;
+  }
 
-.custom-dialog-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
+  @keyframes dialogSlideIn {
+    from {
+      transform: translateY(-30px) scale(0.95);
+      opacity: 0;
+    }
 
-.custom-dialog-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
 
-.custom-dialog-close:hover {
-  background: #f3f4f6;
-  color: #1f2937;
-}
+  .custom-dialog-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.custom-dialog-body {
-  padding: 24px;
-  text-align: center;
-}
+  .custom-dialog-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+  }
 
-.dialog-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
+  .custom-dialog-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
 
-.dialog-icon.success {
-  background: #d1fae5;
-  color: #065f46;
-}
+  .custom-dialog-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
 
-.dialog-icon.success::before {
-  content: "✓";
-}
+  .custom-dialog-body {
+    padding: 24px;
+    text-align: center;
+  }
 
-.dialog-icon.error {
-  background: #fee2e2;
-  color: #991b1b;
-}
+  .dialog-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
 
-.dialog-icon.error::before {
-  content: "✕";
-}
+  .dialog-icon.success {
+    background: #d1fae5;
+    color: #065f46;
+  }
 
-.dialog-icon.warning {
-  background: #fed7aa;
-  color: #9a3412;
-}
+  .dialog-icon.success::before {
+    content: "✓";
+  }
 
-.dialog-icon.warning::before {
-  content: "!";
-}
+  .dialog-icon.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
 
-.dialog-icon.info {
-  background: #dbeafe;
-  color: #1e40af;
-}
+  .dialog-icon.error::before {
+    content: "✕";
+  }
 
-.dialog-icon.info::before {
-  content: "i";
-  font-weight: bold;
-  font-style: italic;
-}
+  .dialog-icon.warning {
+    background: #fed7aa;
+    color: #9a3412;
+  }
 
-#dialogMessage {
-  font-size: 15px;
-  color: #4b5563;
-  line-height: 1.6;
-  margin: 0;
-}
+  .dialog-icon.warning::before {
+    content: "!";
+  }
 
-.custom-dialog-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
+  .dialog-icon.info {
+    background: #dbeafe;
+    color: #1e40af;
+  }
 
-.dialog-btn {
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  outline: none;
-}
+  .dialog-icon.info::before {
+    content: "i";
+    font-weight: bold;
+    font-style: italic;
+  }
 
-.dialog-btn-primary {
-  background: #1654a0;
-  color: white;
-}
+  #dialogMessage {
+    font-size: 15px;
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+  }
 
-.dialog-btn-primary:hover {
-  background: #1e5ba8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(22, 84, 160, 0.3);
-}
+  .custom-dialog-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
 
-.dialog-btn-secondary {
-  background: #e5e7eb;
-  color: #374151;
-}
+  .dialog-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    outline: none;
+  }
 
-.dialog-btn-secondary:hover {
-  background: #d1d5db;
-}
+  .dialog-btn-primary {
+    background: #1654a0;
+    color: white;
+  }
+
+  .dialog-btn-primary:hover {
+    background: #1e5ba8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 84, 160, 0.3);
+  }
+
+  .dialog-btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .dialog-btn-secondary:hover {
+    background: #d1d5db;
+  }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -418,7 +420,7 @@
     dialogCallback = callback;
 
     // Update confirm button onclick
-    confirmBtn.onclick = function() {
+    confirmBtn.onclick = function () {
       closeDialog();
       if (dialogCallback) {
         dialogCallback(true);
@@ -427,7 +429,7 @@
     };
 
     // Update cancel button onclick
-    cancelBtn.onclick = function() {
+    cancelBtn.onclick = function () {
       closeDialog();
       if (dialogCallback) {
         dialogCallback(false);
@@ -450,9 +452,9 @@
   }
 
   // Prevent closing dialog on overlay click
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const dialog = document.getElementById('customDialog');
-    dialog.addEventListener('click', function(e) {
+    dialog.addEventListener('click', function (e) {
       e.stopPropagation();
     });
   });
@@ -636,125 +638,125 @@
 
   viewClonedBtn.addEventListener('click', viewClonedEmails);
 
-// Update the form submission handler
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+  // Update the form submission handler
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const emailIds = document.getElementById('emailIds').value.split(',').map(id => id.trim()).filter(id => id !== '');
-  const cloningCount = parseInt(document.getElementById('cloningCount').value, 10);
-  const strategy = timeStrategy.value;
+    const emailIds = document.getElementById('emailIds').value.split(',').map(id => id.trim()).filter(id => id !== '');
+    const cloningCount = parseInt(document.getElementById('cloningCount').value, 10);
+    const strategy = timeStrategy.value;
 
-  // Get custom time parameters if strategy is 'custom'
-  let customStartHour = null;
-  let customStartMinute = null;
-  let customInterval = null;
-  
-  if (strategy === 'custom') {
-    customStartHour = parseInt(document.getElementById('startHour').value, 10);
-    customStartMinute = parseInt(document.getElementById('startMinute').value, 10);
-    customInterval = parseInt(document.getElementById('interval').value, 10);
-
-    if (isNaN(customStartHour) || customStartHour < 0 || customStartHour > 23) {
-      log('Please enter a valid start hour (0-23)', 'error');
-      return;
-    }
-
-    if (isNaN(customStartMinute) || customStartMinute < 0 || customStartMinute > 59) {
-      log('Please enter a valid start minute (0-59)', 'error');
-      return;
-    }
-
-    if (isNaN(customInterval) || customInterval < 1 || customInterval > 60) {
-      log('Please enter a valid interval (1-60 minutes)', 'error');
-      return;
-    }
-  }
-
-  if (emailIds.length === 0) {
-    log('Please enter at least one email ID', 'error');
-    return;
-  }
-
-  // Reset UI
-  logArea.innerHTML = '';
-  statsSection.classList.remove('hidden');
-  stats = {
-    totalAttempted: emailIds.length * cloningCount,
-    successCount: 0,
-    duplicatesSkipped: 0,
-    errorCount: 0
-  };
-  updateStats();
-  updateProgress(0);
-  statusText.textContent = 'Processing...';
-  statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-indigo-600 border border-gray-200';
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-
-  try {
-    log(`🚀 Starting to clone ${emailIds.length} emails for ${cloningCount} day(s)`, 'info');
-    log(`⏳ Using scheduling strategy: ${strategy}`, 'info');
+    // Get custom time parameters if strategy is 'custom'
+    let customStartHour = null;
+    let customStartMinute = null;
+    let customInterval = null;
 
     if (strategy === 'custom') {
-      const startTime = `${customStartHour}:${customStartMinute.toString().padStart(2, '0')}`;
-      log(`🕒 Custom timing: Start at ${startTime} with ${customInterval}-minute intervals`, 'info');
+      customStartHour = parseInt(document.getElementById('startHour').value, 10);
+      customStartMinute = parseInt(document.getElementById('startMinute').value, 10);
+      customInterval = parseInt(document.getElementById('interval').value, 10);
+
+      if (isNaN(customStartHour) || customStartHour < 0 || customStartHour > 23) {
+        log('Please enter a valid start hour (0-23)', 'error');
+        return;
+      }
+
+      if (isNaN(customStartMinute) || customStartMinute < 0 || customStartMinute > 59) {
+        log('Please enter a valid start minute (0-59)', 'error');
+        return;
+      }
+
+      if (isNaN(customInterval) || customInterval < 1 || customInterval > 60) {
+        log('Please enter a valid interval (1-60 minutes)', 'error');
+        return;
+      }
     }
 
-    // Build request payload
-    const requestPayload = {
-      emailIds,
-      cloningCount,
-      strategy
+    if (emailIds.length === 0) {
+      log('Please enter at least one email ID', 'error');
+      return;
+    }
+
+    // Reset UI
+    logArea.innerHTML = '';
+    statsSection.classList.remove('hidden');
+    stats = {
+      totalAttempted: emailIds.length * cloningCount,
+      successCount: 0,
+      duplicatesSkipped: 0,
+      errorCount: 0
     };
+    updateStats();
+    updateProgress(0);
+    statusText.textContent = 'Processing...';
+    statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-indigo-600 border border-gray-200';
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
 
-    // Add custom time parameters if strategy is custom
-    if (strategy === 'custom') {
-      requestPayload.customStartHour = customStartHour;
-      requestPayload.customStartMinute = customStartMinute;
-      requestPayload.customInterval = customInterval;
+    try {
+      log(`🚀 Starting to clone ${emailIds.length} emails for ${cloningCount} day(s)`, 'info');
+      log(`⏳ Using scheduling strategy: ${strategy}`, 'info');
+
+      if (strategy === 'custom') {
+        const startTime = `${customStartHour}:${customStartMinute.toString().padStart(2, '0')}`;
+        log(`🕒 Custom timing: Start at ${startTime} with ${customInterval}-minute intervals`, 'info');
+      }
+
+      // Build request payload
+      const requestPayload = {
+        emailIds,
+        cloningCount,
+        strategy
+      };
+
+      // Add custom time parameters if strategy is custom
+      if (strategy === 'custom') {
+        requestPayload.customStartHour = customStartHour;
+        requestPayload.customStartMinute = customStartMinute;
+        requestPayload.customInterval = customInterval;
+      }
+
+      const response = await axios.post('/api/clone-emails', requestPayload);
+
+      if (response.data.success) {
+        const result = response.data;
+        log(`✅ ${result.message}`, 'success');
+        log(`📊 ${result.stats.successfullyCloned} emails cloned, ${result.stats.duplicatesSkipped} duplicates skipped, ${result.stats.errors} errors`, 'info');
+
+        // Update stats from backend response
+        stats.successCount = result.stats.successfullyCloned;
+        stats.duplicatesSkipped = result.stats.duplicatesSkipped;
+        stats.errorCount = result.stats.errors;
+        updateStats();
+
+        statusText.textContent = 'Completed';
+        statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-green-600 border border-gray-200';
+        updateProgress(100);
+
+        // Show completion animation
+        submitBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Process Complete!';
+        submitBtn.className = 'w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
+
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i> Start Again';
+          submitBtn.className = 'w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
+        }, 3000);
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Cloning error:', error);
+      log("❌ Error occurred during cloning process", 'error');
+      log(error.response?.data?.message || error.message, 'error');
+      statusText.textContent = 'Failed';
+      statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-red-600 border border-gray-200';
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i> Try Again';
+      submitBtn.className = 'w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
     }
-
-    const response = await axios.post('/api/clone-emails', requestPayload);
-
-    if (response.data.success) {
-      const result = response.data;
-      log(`✅ ${result.message}`, 'success');
-      log(`📊 ${result.stats.successfullyCloned} emails cloned, ${result.stats.duplicatesSkipped} duplicates skipped, ${result.stats.errors} errors`, 'info');
-
-      // Update stats from backend response
-      stats.successCount = result.stats.successfullyCloned;
-      stats.duplicatesSkipped = result.stats.duplicatesSkipped;
-      stats.errorCount = result.stats.errors;
-      updateStats();
-
-      statusText.textContent = 'Completed';
-      statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-green-600 border border-gray-200';
-      updateProgress(100);
-
-      // Show completion animation
-      submitBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Process Complete!';
-      submitBtn.className = 'w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
-
-      setTimeout(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i> Start Again';
-        submitBtn.className = 'w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
-      }, 3000);
-    } else {
-      throw new Error(response.data.message);
-    }
-  } catch (error) {
-    console.error('Cloning error:', error);
-    log("❌ Error occurred during cloning process", 'error');
-    log(error.response?.data?.message || error.message, 'error');
-    statusText.textContent = 'Failed';
-    statusText.className = 'px-3 py-1 bg-white rounded-lg text-sm font-semibold text-red-600 border border-gray-200';
-
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i> Try Again';
-    submitBtn.className = 'w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center';
-  }
-});
+  });
   // Initialize
   updateStats();
 </script>

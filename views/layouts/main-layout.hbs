@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>{{pageTitle}}</title>
   <link rel="stylesheet" href="/css/style.css" />
   {{!-- Font Awesome for icons --}}
@@ -10,6 +11,7 @@
   {{!-- sortable cdn --}}
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
+
 <body>
 
   {{!-- Header --}}
@@ -20,7 +22,10 @@
         <i class="fas fa-envelope-open-text"></i>
         <span>BO Emailer</span>
       </div>
-      <nav class="navbar">
+      <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <nav class="navbar" id="navbar">
         <div class="nav-links">
           <a class="nav-link {{isActive activePage 'create list'}}" href="/">
             <i class="fas fa-list-ul"></i>
@@ -50,19 +55,434 @@
       </nav>
     </div>
   </header>
-{{/if}}
+  {{/if}}
 
-<main class="main dashboard">
-  {{#if isLoginPage}}
+  <style>
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* Smooth animations and transitions */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-text-size-adjust: none;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      overflow-x: hidden;
+    }
+
+    /* Enhanced smooth scrolling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Smooth button interactions */
+    button,
+    .btn-primary,
+    input[type="submit"] {
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform: translateZ(0);
+      will-change: transform, box-shadow;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:active,
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Touch ripple effect */
+    button::after,
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+      pointer-events: none;
+    }
+
+    button:active::after,
+    .btn-primary:active::after {
+      width: 200px;
+      height: 200px;
+    }
+
+    /* Smooth input interactions */
+    input,
+    select,
+    textarea {
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      will-change: border-color, box-shadow;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      transform: scale(1.02);
+    }
+
+    /* Enhanced card animations */
+    .card {
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform: translateZ(0);
+      will-change: transform, box-shadow;
+    }
+
+    .card:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card:active {
+      transform: translateY(0) scale(0.99);
+      transition: transform 0.1s ease;
+    }
+
+    /* Smooth modal animations */
+    .modal {
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .modal-content {
+      animation: modalSlideIn 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Enhanced navigation smoothness */
+    .navbar a {
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .navbar a::before {
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .navbar a:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Smooth loading states */
+    .loading {
+      pointer-events: none;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Enhanced focus states */
+    *:focus {
+      outline: 2px solid rgba(52, 152, 219, 0.5);
+      outline-offset: 2px;
+      transition: outline 0.2s ease;
+    }
+
+    /* Smooth drag and drop */
+    .sortable-chosen {
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform: scale(1.02) rotate(1deg);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+      z-index: 1000;
+    }
+
+    .sortable-ghost {
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+
+    /* Performance optimizations */
+    .header__menu,
+    #segmentation-list,
+    .created-lists {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+
+      body {
+        padding-top: 60px;
+      }
+
+      header {
+        height: 60px;
+      }
+
+      header .container {
+        padding: 0 15px;
+        position: relative;
+      }
+
+      .logo {
+        font-size: 1.3em;
+      }
+
+      .logo span {
+        display: none;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .navbar {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 60px);
+        background: linear-gradient(135deg, #1654a0 0%, #1e5ba8 100%);
+        transition: left 0.3s ease;
+        z-index: 999;
+      }
+
+      .navbar.active {
+        left: 0;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        padding: 20px;
+        gap: 10px;
+      }
+
+      .navbar a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        margin: 0;
+        padding: 15px 20px;
+        font-size: 1.1em;
+        border-radius: 8px;
+      }
+
+      .navbar a i {
+        width: 20px;
+      }
+
+      main {
+        margin: 20px 10px;
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+      .header__menu h1 {
+        font-size: 24px !important;
+      }
+
+      /* Cards responsive */
+      .flex,
+      .flex-bn {
+        gap: 15px;
+      }
+
+      .card {
+        width: 100% !important;
+        margin-bottom: 15px;
+      }
+
+      /* Form responsiveness */
+      .modal-content {
+        width: 95% !important;
+        margin: 20px auto;
+        animation: modalSlideInMobile 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+      }
+
+      @keyframes modalSlideInMobile {
+        from {
+          opacity: 0;
+          transform: translateY(50px) scale(0.9);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* Table responsive */
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      /* Buttons responsive */
+      .btn-primary {
+        font-size: 14px;
+        padding: 10px 16px;
+        transform: translateZ(0);
+      }
+
+      .btn-primary:active {
+        transform: scale(0.95);
+      }
+
+      /* Filter controls responsive */
+      .filter-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .filter-dropdown {
+        width: 100%;
+      }
+
+      select.filter-select {
+        width: 100%;
+      }
+
+      /* Date picker responsive */
+      .date-picker-container {
+        width: 100%;
+      }
+
+      #globalDatePicker {
+        width: 100%;
+      }
+
+      /* Stats cards responsive */
+      .stats-row {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Email list container responsive */
+      .email-list-container {
+        max-height: 400px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header .container {
+        padding: 0 10px;
+      }
+
+      .logo {
+        font-size: 1.2em;
+      }
+
+      main {
+        margin: 15px 5px;
+        padding: 10px;
+      }
+
+      .header__menu h1 {
+        font-size: 20px !important;
+        margin: 15px 0 !important;
+      }
+
+      .card {
+        padding: 12px !important;
+      }
+
+      .btn-primary {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      .emailCount {
+        font-size: 12px;
+      }
+
+      /* Form fields responsive */
+      input,
+      select,
+      textarea {
+        font-size: 16px !important;
+        /* Prevent zoom on iOS */
+      }
+    }
+
+    /* Landscape mode adjustments */
+    @media (max-width: 768px) and (orientation: landscape) {
+      header {
+        height: 50px;
+      }
+
+      body {
+        padding-top: 50px;
+      }
+
+      .navbar {
+        top: 50px;
+        height: calc(100vh - 50px);
+      }
+
+      .navbar a {
+        padding: 10px 15px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+
+  <main class="main dashboard">
+    {{#if isLoginPage}}
     <div class="login-page">
       {{{body}}}
     </div>
-  {{else}}
+    {{else}}
     {{{body}}}
-  {{/if}}
-</main>
+    {{/if}}
+  </main>
 
-{{!-- Footer --}}
+  {{!-- Footer --}}
   {{!-- <footer>
     &copy; 2025 BO Emailer. All rights reserved.
   </footer> --}}
@@ -70,6 +490,40 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // Mobile menu toggle
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const navbar = document.getElementById('navbar');
+
+      if (mobileMenuToggle && navbar) {
+        mobileMenuToggle.addEventListener('click', () => {
+          navbar.classList.toggle('active');
+          const icon = mobileMenuToggle.querySelector('i');
+          icon.classList.toggle('fa-bars');
+          icon.classList.toggle('fa-times');
+        });
+
+        // Close menu when clicking on a link
+        const navLinks = navbar.querySelectorAll('a');
+        navLinks.forEach(link => {
+          link.addEventListener('click', () => {
+            navbar.classList.remove('active');
+            const icon = mobileMenuToggle.querySelector('i');
+            icon.classList.add('fa-bars');
+            icon.classList.remove('fa-times');
+          });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!navbar.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+            navbar.classList.remove('active');
+            const icon = mobileMenuToggle.querySelector('i');
+            icon.classList.add('fa-bars');
+            icon.classList.remove('fa-times');
+          }
+        });
+      }
+
       const modal = document.getElementById("emailModal");
       const openBtn = document.getElementById("openFormBtn");
       const closeBtn = document.getElementById("closeModal");
@@ -84,92 +538,93 @@
 
 
 
-          // Format display dates
-    document.querySelectorAll(".js-date").forEach(el => {
-      const date = new Date(el.dataset.iso);
-      el.textContent = date.toLocaleDateString("en-GB", {
-        day: "numeric", month: "short", year: "numeric"
+      // Format display dates
+      document.querySelectorAll(".js-date").forEach(el => {
+        const date = new Date(el.dataset.iso);
+        el.textContent = date.toLocaleDateString("en-GB", {
+          day: "numeric", month: "short", year: "numeric"
+        });
       });
-    });
 
-//list date format
-document.querySelectorAll(".list-date-span").forEach(el => {
-  const iso = el.getAttribute("data-iso"); // get original ISO date from data-attr
-  if (!iso) return; // skip if no ISO available
+      //list date format
+      document.querySelectorAll(".list-date-span").forEach(el => {
+        const iso = el.getAttribute("data-iso"); // get original ISO date from data-attr
+        if (!iso) return; // skip if no ISO available
 
-  const d = new Date(iso);
-  const day = d.getDate();
-  const month = d.toLocaleString('en-US', { month: 'short' });
-  const year = d.getFullYear();
+        const d = new Date(iso);
+        const day = d.getDate();
+        const month = d.toLocaleString('en-US', { month: 'short' });
+        const year = d.getFullYear();
 
-  let hours = d.getHours();
-  const minutes = d.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
+        let hours = d.getHours();
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
 
-  el.textContent = `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
-});
-
-
-  // Format created/updated timestamp
-    document.querySelectorAll(".edit-date").forEach(el => {
-      const date = new Date(el.dataset.date);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = String(date.getFullYear()).slice(-2);
-      let hours = date.getHours();
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      hours = hours % 12 || 12;
-      el.textContent = `${day}.${month}.${year} ${hours}.${minutes} ${ampm}`;
-    });
+        el.textContent = `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
+      });
 
 
-     // Short campaign name
-    document.querySelectorAll(".campaign").forEach(el => {
-      el.textContent = `${el.textContent.slice(0,18)}`;
-    });
+      // Format created/updated timestamp
+      document.querySelectorAll(".edit-date").forEach(el => {
+        const date = new Date(el.dataset.date);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12 || 12;
+        el.textContent = `${day}.${month}.${year} ${hours}.${minutes} ${ampm}`;
+      });
 
 
-    //drag and drop
-   const list = document.getElementById('segmentation-list');
-    const status = document.getElementById('save-status');
+      // Short campaign name
+      document.querySelectorAll(".campaign").forEach(el => {
+        el.textContent = `${el.textContent.slice(0, 18)}`;
+      });
 
-    // Only initialize Sortable if the elements exist (they're only on the index page)
-    if (list && status) {
-    new Sortable(list, {
-      animation: 150,
-      ghostClass: 'sortable-ghost',     // Class applied to ghost element
-      chosenClass: 'sortable-chosen',   // Class applied to picked-up item
-      dragClass: 'drag-active',     
-      onEnd: async () => {
-        const ids = [...list.querySelectorAll('.card')].map(el => el.dataset.id);
-        try {
-          const res = await fetch('/api/segmentations/reorder', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderedIds: ids })
-          });
 
-          const result = await res.json();
-          if (result.success) {
-            status.textContent = "Order saved!";
-            status.classList.toggle("save-status");
-            status.classList.toggle("disable");
-            setTimeout(() => status.textContent = "", 1500);
-          } else {
-            status.textContent = "Failed to save order.";
+      //drag and drop
+      const list = document.getElementById('segmentation-list');
+      const status = document.getElementById('save-status');
+
+      // Only initialize Sortable if the elements exist (they're only on the index page)
+      if (list && status) {
+        new Sortable(list, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',     // Class applied to ghost element
+          chosenClass: 'sortable-chosen',   // Class applied to picked-up item
+          dragClass: 'drag-active',
+          onEnd: async () => {
+            const ids = [...list.querySelectorAll('.card')].map(el => el.dataset.id);
+            try {
+              const res = await fetch('/api/segmentations/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderedIds: ids })
+              });
+
+              const result = await res.json();
+              if (result.success) {
+                status.textContent = "Order saved!";
+                status.classList.toggle("save-status");
+                status.classList.toggle("disable");
+                setTimeout(() => status.textContent = "", 1500);
+              } else {
+                status.textContent = "Failed to save order.";
+              }
+            } catch (err) {
+              console.error("Error:", err);
+              status.textContent = "Server error.";
+            }
           }
-        } catch (err) {
-          console.error("Error:", err);
-          status.textContent = "Server error.";
-        }
+        });
       }
-    });
-    }
 
     });
   </script>
 
 </body>
+
 </html>
