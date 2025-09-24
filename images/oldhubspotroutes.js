@@ -5,14 +5,6 @@ const axios = require('axios');
 const Segmentation = require('../models/segmentation');
 const CreatedList = require('../models/list');
 
-// Authentication middleware
-function ensureAuthenticated(req, res, next) {
-  if (!req.session.user) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  next();
-}
-
 // Config
 const HUBSPOT_ACCESS_TOKEN = process.env.HUBSPOT_ACCESS_TOKEN;
 const HUBSPOT_PORTAL_ID = process.env.HUBSPOT_PORTAL_ID;
@@ -398,216 +390,41 @@ router.get('/created-lists', async (req, res) => {
   }
 });
 
-// Updated route for List Manager
-router.get('/list-manager', ensureAuthenticated, async (req, res) => {
-  try {
-    const showAll = req.query.show === 'all';
-    const jsonFormat = req.query.json === 'true';
-    const filter = showAll ? {} : { deleted: { $ne: true } };
-    
-    const lists = await CreatedList.find(filter)
-      .sort({ createdDate: -1 })
-      .lean();
-
-    const formattedLists = lists.map(list => ({
-      ...list,
-      formattedDate: formatDateForDisplay(list.createdDate),
-      createdDate: list.createdDate
-    }));
-
-    // Always return JSON when json=true is specified
-    if (jsonFormat) {
-      return res.json(formattedLists);
-    }
-
-    return res.render('listManager', {
-      lists: formattedLists,
-      showAll,
-      pageTitle: "List Manager",
-      activePage: "list manager"
-    });
-
-  } catch (error) {
-    console.error('Error:', error);
-    if (req.query.json === 'true') {
-      return res.status(500).json({ error: 'Server error' });
-    }
-    res.status(500).send('Server error');
-  }
+router.get('/list-cleaner', async (req, res) => {
+  const showAll = req.query.show === 'all';
+  const filter = showAll ? {} : { deleted: { $ne: true } };
+  const lists = await CreatedList.find(filter).lean();
+  res.render('deletedLists', {
+    lists,
+    showAll,
+    pageTitle: "List Cleaning",
+    activePage: "list cleaning"
+  });
 });
 
-// Keep old route for backward compatibility
-router.get('/list-cleaner', ensureAuthenticated, async (req, res) => {
-  try {
-    const showAll = req.query.show === 'all';
-    const jsonFormat = req.query.json === 'true';
-    const filter = showAll ? {} : { deleted: { $ne: true } };
-    
-    const lists = await CreatedList.find(filter)
-      .sort({ createdDate: -1 })
-      .lean();
+router.post('/delete-lists', async (req, res) => {
+  const selectedIds = Array.isArray(req.body.selectedIds) ? req.body.selectedIds : [req.body.selectedIds];
 
-    const formattedLists = lists.map(list => ({
-      ...list,
-      formattedDate: formatDateForDisplay(list.createdDate),
-      createdDate: list.createdDate
-    }));
+  for (const _id of selectedIds) {
+    try {
+      const list = await CreatedList.findById(_id);
+      if (!list || list.deleted) continue;
 
-    // Always return JSON when json=true is specified
-    if (jsonFormat) {
-      return res.json(formattedLists);
-    }
-
-    return res.render('deletedLists', {
-      lists: formattedLists,
-      showAll,
-      pageTitle: "List Cleaner",
-      activePage: "list cleaning"
-    });
-
-  } catch (error) {
-    console.error('Error:', error);
-    if (req.query.json === 'true') {
-      return res.status(500).json({ error: 'Server error' });
-    }
-    return res.status(500).send('Server error');
-  }
-});
-// Date formatting helper
-function formatDateForDisplay(date) {
-  const d = new Date(date);
-  const day = d.getDate();
-  const month = d.toLocaleString('en-US', { month: 'short' });
-  const year = d.getFullYear();
-  let hours = d.getHours();
-  const minutes = d.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-  
-  return `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
-}
-
-// Include a HubSpot list in an email
-router.post('/include-list-in-email', ensureAuthenticated, async (req, res) => {
-  const { emailId, listId, emailName, listName } = req.body;
-
-  try {
-    console.log(`\n📧 Including list in email:`);
-    console.log(`  Email: ${emailName} (ID: ${emailId})`);
-    console.log(`  List: ${listName} (ID: ${listId})`);
-
-    // First, get the current email details using v1 API
-    const emailResponse = await axios.get(
-      `https://api.hubapi.com/marketing-emails/v1/emails/${emailId}`,
-      { headers: hubspotHeaders }
-    );
-
-    const currentEmail = emailResponse.data;
-    console.log(`  Email retrieved. Current state: ${currentEmail.state || 'DRAFT'}`);
-    console.log(`  Current mailingListsIncluded: ${JSON.stringify(currentEmail.mailingListsIncluded || [])}`);
-    console.log(`  Current mailingListsExcluded: ${JSON.stringify(currentEmail.mailingListsExcluded || [])}`);
-
-    // Check if email is in DRAFT state (required for updates)
-    if (currentEmail.state && currentEmail.state !== 'DRAFT') {
-      console.log(`  ⚠️ Email is in ${currentEmail.state} state. Only DRAFT emails can be updated.`);
-      return res.json({
-        success: false,
-        message: `Email is in ${currentEmail.state} state. Only DRAFT emails can have their lists updated. Please ensure the email is in DRAFT state in HubSpot.`,
-        data: currentEmail,
-        note: 'Email must be in DRAFT state to update recipients'
+      await axios.delete(`https://api.hubapi.com/contacts/v1/lists/${list.listId}`, {
+        headers: hubspotHeaders
       });
+
+      list.deleted = true;
+      await list.save();
+      console.log(`🗑️ Deleted list: ${list.name} | ID: ${list.listId}`);
+    } catch (err) {
+      console.error(`❌ Error deleting list ${_id}:`, err.message);
+      await CreatedList.findByIdAndUpdate(_id, { deleted: false });
     }
-
-    // Get existing lists and ensure they're STRINGS (v1 API expects strings), removing duplicates
-    const existingIncludedLists = [...new Set((currentEmail.mailingListsIncluded || []).map(id =>
-      String(id)
-    ))];
-
-    const existingExcludedLists = (currentEmail.mailingListsExcluded || []).map(id =>
-      String(id)
-    );
-
-    // Convert the new listId to string (v1 API expects strings)
-    const listIdStr = String(listId);
-
-    // Check if list is already included
-    if (existingIncludedLists.includes(listIdStr)) {
-      console.log(`  ℹ️ List ${listId} is already included in this email`);
-      return res.json({
-        success: true,
-        message: 'List is already included in this email',
-        emailId: emailId,
-        listId: listId
-      });
-    }
-
-    // Use the v1 API with PUT method (matching the curl exactly)
-    console.log(`  Using v1 API with PUT method...`);
-
-    // Create updated list without duplicates - all as STRINGS
-    const updatedIncludeLists = [...new Set([...existingIncludedLists, listIdStr])];
-
-    // Build payload matching curl structure - with STRING arrays
-    const updatePayload = {
-      mailingListsIncluded: updatedIncludeLists
-    };
-
-    // Preserve excluded lists if they exist - as STRINGS
-    if (existingExcludedLists && existingExcludedLists.length > 0) {
-      updatePayload.mailingListsExcluded = existingExcludedLists;
-      console.log(`  Preserving excluded lists: ${existingExcludedLists}`);
-    }
-
-    console.log(`  Final payload:`, JSON.stringify(updatePayload, null, 2));
-
-    const updateResponse = await axios.put(
-      `https://api.hubapi.com/marketing-emails/v1/emails/${emailId}`,
-      updatePayload,
-      { headers: hubspotHeaders }
-    );
-
-    console.log(`✅ Successfully updated email using v1 API PUT`);
-
-    // Return success immediately - no verification needed
-    return res.json({
-      success: true,
-      message: `List successfully added to email`,
-      emailId: emailId,
-      listId: listId,
-      updatedIncludedLists: updatedIncludeLists,
-      updatedExcludedLists: existingExcludedLists
-    });
-
-  } catch (error) {
-    console.error('❌ HubSpot API error:', error.response?.data || error.message);
-
-    if (error.response?.data) {
-      console.error('Full error details:', JSON.stringify(error.response.data, null, 2));
-    }
-
-    // Provide more specific error messages
-    let errorMessage = 'Failed to include list in email';
-    if (error.response?.status === 404) {
-      errorMessage = `Email ${emailId} or list ${listId} not found in HubSpot`;
-    } else if (error.response?.status === 401) {
-      errorMessage = 'HubSpot authentication failed - check access token';
-    } else if (error.response?.status === 400) {
-      errorMessage = `Invalid request - ${error.response?.data?.message || 'check email and list IDs'}`;
-    } else if (error.response?.status === 403) {
-      errorMessage = 'Permission denied - this email may be locked or require manual configuration';
-    } else if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    }
-
-    res.status(error.response?.status || 500).json({
-      success: false,
-      message: errorMessage,
-      details: error.response?.data || error.message,
-      suggestion: 'If this is a cloned email, you may need to add lists manually in the HubSpot UI'
-    });
+    await new Promise(r => setTimeout(r, 500));
   }
+
+  res.redirect('/api/list-cleaner?show=all');
 });
-
-
 
 module.exports = router;

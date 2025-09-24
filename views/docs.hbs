@@ -20,10 +20,25 @@
       --danger: #dc3545;
     }
 
+    /* Remove all focus effects globally */
     * {
+      outline: none !important;
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    *:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus,
+    textarea:focus {
+      outline: none !important;
+      box-shadow: none !important;
     }
 
     body {
@@ -121,9 +136,9 @@
     }
 
     .input-section input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+      outline: none !important;
+      border-color: var(--border-color);
+      box-shadow: none !important;
     }
 
     .filter-controls {
@@ -151,9 +166,9 @@
     }
 
     .filter-controls select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+      outline: none !important;
+      border-color: var(--border-color);
+      box-shadow: none !important;
     }
 
     .filter-controls button {
@@ -194,9 +209,9 @@
     }
 
     .options-section input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+      outline: none !important;
+      border-color: var(--border-color);
+      box-shadow: none !important;
     }
 
     #publishBtn {

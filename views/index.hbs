@@ -1,82 +1,137 @@
 <div class="header__menu" style="position: relative;">
-  
 
-  <h1 style="text-align: center; margin: 20px 0 20px 0; font-size: 34px; font-weight: 500;">
+
+  <h1 style="text-align: center; margin: 10px 0 10px 0; font-size: 28px; font-weight: 500;">
     <i class="fas fa-list-ul" style="color: #067be1; margin-right: 15px;"></i>List Creator
   </h1>
 
-  <div class="control-panel" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <label for="globalDatePicker" style="font-weight: 600; color: #333; font-size: 15px;">Set Date for All Lists:</label>
-      <input type="date" id="globalDatePicker" class="date-picker-input" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; background-color: white;">
+  <div class="control-panel" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 18px 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); gap: 20px; width: 100%; box-sizing: border-box;">
+    <input type="text" id="cardSearch" class="control-input" placeholder="🔎 Search lists by brand, campaign, domain..." style="flex: 1; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; background-color: white; transition: all 0.3s ease; height: 42px; box-sizing: border-box;">
+
+    <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto;">
+      <label for="globalDatePicker" style="font-weight: 600; color: #333; font-size: 14px; white-space: nowrap;">Set Date:</label>
+      <input type="date" id="globalDatePicker" class="control-input" style="padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; background-color: white; height: 42px; box-sizing: border-box;">
     </div>
 
-    <div style="display: flex; align-items: center; gap: 25px;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <label for="daysFilter" style="font-weight: 600; color: #333; font-size: 15px;">Days:</label>
-        <select id="daysFilter" class="filter-select" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; min-width: 140px; background-color: white;">
-          <option value="all">All Days</option>
-          <option value="today">Today</option>
-          <option value="t+1">T+1 Days</option>
-          <option value="t+2">T+2 Days</option>
-          <option value="t+3">T+3 Days</option>
-        </select>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <label for="modeFilter" style="font-weight: 600; color: #333; font-size: 15px;white-space: nowrap;">List Mode:</label>
-        <select id="modeFilter" class="filter-select" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; min-width: 170px; background-color: white;">
-          <option value="BAU">BAU (Default)</option>
-          <option value="re-engagement">Re-engagement</option>
-          <option value="re-activation">Re-activation</option>
-        </select>
-      </div>
-
-      <button id="openFormBtn" class="btn-primary" type="button" style="padding: 14px 32px; font-size: 16px; font-weight: 600; border-radius: 8px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s;">Add Lists</button>
-      <button id="runBtn" class="btn-primary" type="button" style="padding: 14px 32px; font-size: 16px; font-weight: 600; border-radius: 8px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s;">Run Automation</button>
+    <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto;">
+      <label for="daysFilter" style="font-weight: 600; color: #333; font-size: 14px;">Days:</label>
+      <select id="daysFilter" class="control-input" style="padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; min-width: 120px; background-color: white; height: 42px; box-sizing: border-box;">
+        <option value="all">All Days</option>
+        <option value="today">Today</option>
+        <option value="t+1">T+1 Days</option>
+        <option value="t+2">T+2 Days</option>
+        <option value="t+3">T+3 Days</option>
+      </select>
     </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto;">
+      <label for="modeFilter" style="font-weight: 600; color: #333; font-size: 14px; white-space: nowrap;">Mode:</label>
+      <select id="modeFilter" class="control-input" style="padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; min-width: 150px; background-color: white; height: 42px; box-sizing: border-box;">
+        <option value="BAU">BAU (Default)</option>
+        <option value="re-engagement">Re-engagement</option>
+        <option value="re-activation">Re-activation</option>
+      </select>
+    </div>
+
+    <button id="openFormBtn" class="control-button" type="button" style="padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 6px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s; height: 42px; box-sizing: border-box; white-space: nowrap;">Add Lists</button>
+    <button id="runBtn" class="control-button" type="button" style="padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 6px; background-color: #4A90E2; color: white; border: none; cursor: pointer; transition: all 0.3s; height: 42px; box-sizing: border-box; white-space: nowrap;">Run Automation</button>
   </div>
-  <p id="save-status" class="disable" style="position: absolute; top: 180px; left: 0;">Note: drag & drop to change order...</p>
 </div>
 
-<h4 class="emailCount mb-12">{{emails.length}} Lists</h4>
+<div class="list-info-section" style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px; padding: 8px 14px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 6px; border: 1px solid #dee2e6; position: relative; height: 38px;">
+  <p id="save-status" class="disable" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); margin: 0; font-size: 11px; color: #6b7280; font-style: italic;">Note: drag using the handle...</p>
+
+  <h4 class="emailCount" style="font-size: 16px; font-weight: 600; color: #333; margin: 0; position: absolute; left: 50%; transform: translateX(-50%);">{{emails.length}} Lists</h4>
+
+  <div class="color-legend" style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 16px; height: 16px; background: #bbf7d0; border-radius: 50%; display: inline-block; border: 2px solid #86efac;"></span>
+      <span style="font-size: 12px; color: #374151; font-weight: 500;">Main Domain</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 16px; height: 16px; background: #bfdbfe; border-radius: 50%; display: inline-block; border: 2px solid #93c5fd;"></span>
+      <span style="font-size: 12px; color: #374151; font-weight: 500;">P Sub Domain</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 16px; height: 16px; background: #fed7aa; border-radius: 50%; display: inline-block; border: 2px solid #fbbf24;"></span>
+      <span style="font-size: 12px; color: #374151; font-weight: 500;">M Sub Domain</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 16px; height: 16px; background: #d1d5db; border-radius: 50%; display: inline-block; border: 2px solid #9ca3af;"></span>
+      <span style="font-size: 12px; color: #374151; font-weight: 500;">Others</span>
+    </div>
+  </div>
+</div>
 
 {{#if hasEmails}}
-<div class="flex" id="segmentation-list" style="margin-bottom: 50px;">
+<div class="flex" id="segmentation-list" style="margin-bottom: 50px; display: flex; flex-direction: column; gap: 8px;">
   {{#each emails}}
-  <div class="card {{isType isMain this.domain}}" data-id="{{this._id}}" draggable="true">
-    <div class="flex-bn flex-bn--alignTop mb-12">
-      <div>
-        <p class="brand" title="brand">{{this.brand}}</p>
-        <p class="campaign" title="campaign: {{this.campaign}}">{{this.campaign}}</p>
-      </div>
-      <div class="text-right">
-        <p class="domain" title="domain">{{this.domain}}</p>
-        <p class="count" title="count">{{this.count}}</p>
-      </div>
+  <div class="card-uniform" data-id="{{this._id}}" data-brand="{{this.brand}}">
+    <div class="drag-handle" title="Drag to reorder">
+      <div class="drag-dots">⋮⋮</div>
     </div>
 
-    <p class="date mb-12"><span class="js-date" data-iso="{{this.date}}"></span></p>
+    <div class="card-grid">
+      <div class="grid-item brand-section">
+        <div class="field-label">Brand</div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          {{!-- <span class="brand-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid #9ca3af; background: #d1d5db;"></span> --}}
+          <div class="field-value brand-text">{{this.brand}}</div>
+        </div>
+      </div>
 
-    <div class="flex-box mb-12">
-      <p class="box"><span>Primary</span><br>{{this.primaryListId}}</p>
-      <p class="box"><span>Secondary</span><br>{{this.secondaryListId}}</p>
-      <p class="box"><span>Send Contacts</span><br>{{this.sendContactListId}}</p>
-    </div>
+      <div class="grid-item campaign-section">
+        <div class="field-label">Campaign</div>
+        <div class="field-value campaign-text">{{this.campaign}}</div>
+      </div>
 
-    <div class="flex-bn">
-      <p class="edit-date" data-date="{{this.createdAt}}"></p>
-      <div class="flex-bn btns">
-        <button class="edit-btn" id="edit-btn" title="Edit" data-id="{{this._id}}" data-campaign="{{this.campaign}}"
-          data-brand="{{this.brand}}" data-count="{{this.count}}" data-primary-list-id="{{this.primaryListId}}"
-          data-secondary-list-id="{{this.secondaryListId}}" data-send-contact-list-id="{{this.sendContactListId}}"
-          data-domain="{{this.domain}}" data-date="{{this.date}}"><img src="/assets/edit-svgrepo-com.svg" width="14"
-            height="14"></button>
+      <div class="grid-item domain-section">
+        <div class="field-label">Domain</div>
+        <div class="field-value">{{this.domain}}</div>
+      </div>
 
-        <form action="/email/{{this._id}}?_method=DELETE" method="post">
-          <button type="button" id="delete-btn" onclick="event.preventDefault(); showConfirm('Are you sure you want to delete this list?', (confirmed) => { if(confirmed) this.closest('form').submit(); }, 'Delete List')" title="Delete"><img
-              src="/assets/delete-svgrepo-com.svg" width="14" height="14"></button>
-        </form>
+      <div class="grid-item count-section">
+        <div class="field-label">Count</div>
+        <div class="field-value">{{this.count}}</div>
+      </div>
+
+      <div class="grid-item date-section">
+        <div class="field-label">Date</div>
+        <div class="date-highlight">
+          <span class="js-date" data-iso="{{this.date}}"></span>
+        </div>
+      </div>
+
+      <div class="grid-item primary-section">
+        <div class="field-label">Primary</div>
+        <div class="field-value">{{this.primaryListId}}</div>
+      </div>
+
+      <div class="grid-item secondary-section">
+        <div class="field-label">Secondary</div>
+        <div class="field-value">{{this.secondaryListId}}</div>
+      </div>
+
+      <div class="grid-item contacts-section">
+        <div class="field-label">Sent Contacts</div>
+        <div class="field-value">{{this.sendContactListId}}</div>
+      </div>
+
+      <div class="grid-item actions-section">
+        <div class="edit-date-info" data-date="{{this.createdAt}}"></div>
+        <div class="action-buttons">
+          <button class="edit-btn" title="Edit" data-id="{{this._id}}" data-campaign="{{this.campaign}}"
+            data-brand="{{this.brand}}" data-count="{{this.count}}" data-primary-list-id="{{this.primaryListId}}"
+            data-secondary-list-id="{{this.secondaryListId}}" data-send-contact-list-id="{{this.sendContactListId}}"
+            data-domain="{{this.domain}}" data-date="{{this.date}}">
+            <img src="/assets/edit-svgrepo-com.svg" width="16" height="16">
+          </button>
+          <form action="/email/{{this._id}}?_method=DELETE" method="post" style="display: inline;">
+            <button type="button" class="delete-btn" onclick="event.preventDefault(); showConfirm('Are you sure you want to delete this list?', (confirmed) => { if(confirmed) this.closest('form').submit(); }, 'Delete List')" title="Delete">
+              <img src="/assets/delete-svgrepo-com.svg" width="16" height="16">
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -91,7 +146,7 @@
   <div class="modal-content">
     <span id="closeModal" class="close" aria-label="Close">&times;</span>
     <form action="/add-email" method="POST" id="emailForm">
-      <h2>Fill the email details</h2>
+      <h2>List Details</h2>
       <label for="campaign">Campaign:</label>
       <input type="text" id="campaign" name="campaign" required />
 
@@ -113,14 +168,13 @@
       <label for="domain">Domain:</label>
       <select id="domain" name="domain" required>
         <option value="" disabled selected>Select a domain</option>
-        <option value="Main">Main</option>
-        <option value="Sub">Sub</option>
-        <option value="Tier 1 - Main">Tier 1 - Main</option>
-        <option value="Tier 2 - Main">Tier 2 - Main</option>
-        <option value="Tier 0c - Main">Tier 0c - Main</option>
-        <option value="Tier 1 - Sub">Tier 1 - Sub</option>
-        <option value="Tier 2 - Sub">Tier 2 - Sub</option>
-        <option value="Tier 0c - Sub">Tier 0c - Sub</option>
+        <option value="Tier 1">Tier 1</option>
+        <option value="Tier 2">Tier 2</option>
+        <option value="Tier 3">Tier 3</option>
+        <option value="Tier 4">Tier 4</option>
+        <option value="Tier 0A">Tier 0A</option>
+        <option value="Tier 0B">Tier 0B</option>
+        <option value="Tier 0C">Tier 0C</option>
       </select>
 
       <label for="date">Date:</label>
@@ -135,7 +189,7 @@
   <h2 style="margin-bottom: 0;">Created Lists (Today)</h2>
   <div style="display: flex;gap:20px;">
     <input class="searchInput" type="search" name="listSearch" id="listSearch" placeholder="search here">
-    <button class="btn-primary" style="white-space:nowrap" id="reload-btn">View all</button>
+    <button class="btn-primary" style="white-space:nowrap;width: 200px;" id="reload-btn">View all</button>
   </div>
 </div>
 <h4 class="emailCount mb-12" id="list-count">{{lists.length}} Lists</h4>
@@ -479,12 +533,20 @@
     if (!list || !window.Sortable) return;
 
     new Sortable(list, {
+      handle: '.drag-handle',
       animation: 150,
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'drag-active',
+      preventOnFilter: false,
+      onStart: function(evt) {
+        // Ensure dragging only starts from handle
+        if (!evt.originalEvent.target.closest('.drag-handle')) {
+          return false;
+        }
+      },
       onEnd: async () => {
-        const ids = [...list.querySelectorAll('.card')].map(el => el.dataset.id);
+        const ids = [...list.querySelectorAll('.card-uniform')].map(el => el.dataset.id);
         try {
           const res = await fetch('/api/segmentations/reorder', {
             method: 'POST',
@@ -512,6 +574,22 @@
   document.addEventListener("DOMContentLoaded", function () {
     initDragAndDrop(); // Initialize drag and drop
 
+    // Prevent dragging when clicking outside of drag handle
+    document.addEventListener('mousedown', function(e) {
+      const card = e.target.closest('.card-uniform');
+      const dragHandle = e.target.closest('.drag-handle');
+
+      if (card && !dragHandle) {
+        e.preventDefault();
+        card.draggable = false;
+      } else if (dragHandle) {
+        const parentCard = dragHandle.closest('.card-uniform');
+        if (parentCard) {
+          parentCard.draggable = true;
+        }
+      }
+    });
+
     // Global date picker functionality
     const globalDatePicker = document.getElementById('globalDatePicker');
     if (globalDatePicker) {
@@ -524,7 +602,7 @@
         const selectedMode = modeFilter ? modeFilter.value.toLowerCase() : 'bau';
 
         // Get only visible cards (respecting current filters)
-        const visibleCards = document.querySelectorAll('.card[style="display: block;"], .card:not([style])');
+        const visibleCards = document.querySelectorAll('.card-uniform[style="display: block;"], .card-uniform:not([style])');
 
         if (visibleCards.length === 0) {
           showDialog('No lists are currently visible to update.', 'warning');
@@ -563,7 +641,7 @@
 
         visibleCards.forEach(card => {
           // Double-check the card matches the current mode filter
-          const campaignElement = card.querySelector('.campaign');
+          const campaignElement = card.querySelector('.campaign-text');
           const cardCampaign = campaignElement ? campaignElement.textContent.toLowerCase() : '';
 
           let shouldUpdate = false;
@@ -576,22 +654,40 @@
           if (shouldUpdate) {
             const cardId = card.dataset.id;
             const dateElement = card.querySelector('.js-date');
+            const editBtn = card.querySelector('.edit-btn');
 
-            // Update visual display immediately
+            // Update visual display immediately with consistent formatting
             if (dateElement) {
               dateElement.dataset.iso = newDate;
               const date = new Date(newDate);
-              dateElement.textContent = date.toLocaleDateString("en-GB", {
-                day: "numeric", month: "short", year: "numeric"
-              });
+              const day = date.getDate();
+              const month = date.toLocaleString('en-US', { month: 'short' });
+              const year = date.getFullYear();
+              dateElement.textContent = `${day} ${month} ${year}`;
             }
 
-            // Prepare update request
+            // Also update the edit button's data-date attribute
+            if (editBtn) {
+              editBtn.dataset.date = newDate;
+            }
+
+            // Prepare update request with proper error handling
             updatePromises.push(
               fetch(`/email/${cardId}/update-date`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ date: newDate })
+              }).then(response => {
+                if (!response.ok) {
+                  if (response.status === 401) {
+                    throw new Error('Authentication required. Please log in.');
+                  }
+                  throw new Error(`Update failed: ${response.statusText}`);
+                }
+                return response.json();
+              }).then(data => {
+                console.log(`Date updated successfully for ${cardId}:`, data);
+                return data;
               })
             );
 
@@ -627,12 +723,13 @@
       });
     }
 
-    // Format dates
+    // Format dates with consistent formatting
     document.querySelectorAll(".js-date").forEach(el => {
       const date = new Date(el.dataset.iso);
-      el.textContent = date.toLocaleDateString("en-GB", {
-        day: "numeric", month: "short", year: "numeric"
-      });
+      const day = date.getDate();
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      el.textContent = `${day} ${month} ${year}`;
     });
 
     document.querySelectorAll(".list-date-span").forEach(el => {
@@ -649,7 +746,7 @@
       el.textContent = `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
     });
 
-    document.querySelectorAll(".edit-date").forEach(el => {
+    document.querySelectorAll(".edit-date-info").forEach(el => {
       const date = new Date(el.dataset.date);
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -661,9 +758,7 @@
       el.textContent = `${day}.${month}.${year} ${hours}.${minutes} ${ampm}`;
     });
 
-    document.querySelectorAll(".campaign").forEach(el => {
-      el.textContent = `${el.textContent.slice(0, 18)}`;
-    });
+    // Campaign text truncation removed - handled by CSS
 
     // Modal edit form population
     const popupForm = document.getElementById("emailModal");
@@ -694,18 +789,54 @@
       });
     });
 
-    // Filters
-    const emailCards = document.querySelectorAll('.card');
+    // Filters and Search
+    const emailCards = document.querySelectorAll('.card-uniform');
     const daysFilter = document.getElementById('daysFilter');
     const modeFilter = document.getElementById('modeFilter');
+    const cardSearch = document.getElementById('cardSearch');
 
+    // Load saved filter values from localStorage
+    const savedDaysFilter = localStorage.getItem('daysFilter');
+    const savedModeFilter = localStorage.getItem('modeFilter');
+
+    // Set the saved values if they exist
+    if (savedDaysFilter && daysFilter) {
+      daysFilter.value = savedDaysFilter;
+    }
+    if (savedModeFilter && modeFilter) {
+      modeFilter.value = savedModeFilter;
+    }
+
+    // Apply filters with the restored values on page load
+    if (daysFilter && modeFilter) {
+      setTimeout(() => {
+        applyFilters();
+      }, 100);
+    }
+
+    // Save filter values to localStorage on change
     [daysFilter, modeFilter].forEach(filter => {
-      filter.addEventListener('change', applyFilters);
+      filter.addEventListener('change', function() {
+        // Save the current filter values to localStorage
+        if (daysFilter) {
+          localStorage.setItem('daysFilter', daysFilter.value);
+        }
+        if (modeFilter) {
+          localStorage.setItem('modeFilter', modeFilter.value);
+        }
+        applyFilters();
+      });
+    });
+
+    // Instant search functionality
+    cardSearch.addEventListener('input', function() {
+      applyFilters();
     });
 
     function applyFilters() {
       const selectedDay = daysFilter.value;
       const selectedMode = modeFilter.value.toLowerCase();
+      const searchTerm = cardSearch.value.toLowerCase().trim();
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -713,8 +844,12 @@
         const dateElement = card.querySelector('.js-date');
         const cardDate = new Date(dateElement.dataset.iso);
         cardDate.setHours(0, 0, 0, 0);
-        const campaignElement = card.querySelector('.campaign');
+        const campaignElement = card.querySelector('.campaign-text');
         const cardCampaign = campaignElement.textContent.toLowerCase();
+        const brandElement = card.querySelector('.brand-text');
+        const cardBrand = brandElement.textContent.toLowerCase();
+        const domainElement = card.querySelector('.domain-section .field-value');
+        const cardDomain = domainElement.textContent.toLowerCase();
 
         // day match
         let dayMatch = true;
@@ -734,12 +869,22 @@
           modeMatch = !cardCampaign.includes('re-engagement') && !cardCampaign.includes('re-activation');
         }
 
-        card.style.display = (dayMatch && modeMatch) ? 'block' : 'none';
+        // search match
+        let searchMatch = true;
+        if (searchTerm) {
+          searchMatch = cardBrand.includes(searchTerm) ||
+                       cardCampaign.includes(searchTerm) ||
+                       cardDomain.includes(searchTerm);
+        }
+
+        card.style.display = (dayMatch && modeMatch && searchMatch) ? 'block' : 'none';
       });
 
       // update count
-      const visibleCount = document.querySelectorAll('.card[style="display: block;"]').length;
-      document.querySelector('h4.emailCount').textContent = `${visibleCount} Lists`;
+      const visibleCards = [...document.querySelectorAll('.card-uniform[style="display: block;"], .card-uniform:not([style])')].filter(card => {
+        return card.style.display !== 'none';
+      });
+      document.querySelector('h4.emailCount').textContent = `${visibleCards.length} Lists`;
     }
 
     applyFilters(); // apply on load
@@ -755,7 +900,7 @@
         const daysFilter = document.getElementById('daysFilter').value;
         const modeFilter = document.getElementById('modeFilter').value;
 
-        const response = await fetch('http://localhost:8000/api/create-lists', {
+        const response = await fetch('/api/create-lists', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ daysFilter, modeFilter })
@@ -770,11 +915,7 @@
           throw new Error(result.error || 'Failed to create lists');
         }
 
-        showDialog(
-          `Successfully processed <strong>${result.count}</strong> campaigns matching:<br>• Date: <strong>${daysFilter.replace('t+', 'T+')}</strong><br>• Mode: <strong>${modeFilter}</strong>`,
-          'success',
-          'Automation Complete'
-        );
+        showDialog(`Successfully processed <strong>${result.count}</strong> campaigns matching:<br>• Date: <strong>${daysFilter.replace('t+', 'T+')}</strong><br>• Mode: <strong>${modeFilter}</strong>`, 'success', 'Automation Complete');
       } catch (error) {
         showDialog(error.message, 'error', 'Automation Failed');
       } finally {
@@ -842,6 +983,268 @@
 </script>
 
 <style>
+  /* Control Panel Uniform Styles */
+  .control-panel {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .control-input:focus,
+  .control-button:focus {
+    outline: none !important;
+    border-color: #e0e0e0 !important;
+    box-shadow: none !important;
+  }
+
+  .control-input:hover {
+    border-color: #93c5fd !important;
+  }
+
+  .control-button:hover {
+    background-color: #3b82f6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(6, 123, 225, 0.3);
+  }
+
+  .control-button:active {
+    transform: translateY(0);
+  }
+
+  /* Ensure all control elements have same height */
+  .control-panel input,
+  .control-panel select,
+  .control-panel button {
+    height: 42px;
+    box-sizing: border-box;
+  }
+
+  /* Uniform Grid Card Layout */
+  #segmentation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  .card-uniform {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .card-uniform:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  /* Main Domain styling - Light Green */
+  .card-uniform[data-brand*="main domain" i] {
+    border-left: 5px solid #bbf7d0;
+  }
+
+  .card-uniform[data-brand*="main domain" i] .drag-handle {
+    background: #bbf7d0;
+  }
+
+  .card-uniform[data-brand*="main domain" i]:hover .drag-handle {
+    background: #86efac;
+  }
+
+  .card-uniform[data-brand*="main domain" i] .brand-indicator {
+    background: #bbf7d0;
+    border-color: #86efac;
+  }
+
+  /* P Sub Domain styling - Light Blue */
+  .card-uniform[data-brand*="p sub domain" i] {
+    border-left: 5px solid #bfdbfe;
+  }
+
+  .card-uniform[data-brand*="p sub domain" i] .drag-handle {
+    background: #bfdbfe;
+  }
+
+  .card-uniform[data-brand*="p sub domain" i]:hover .drag-handle {
+    background: #93c5fd;
+  }
+
+  .card-uniform[data-brand*="p sub domain" i] .brand-indicator {
+    background: #bfdbfe;
+    border-color: #93c5fd;
+  }
+
+  /* M Sub Domain styling - Light Amber */
+  .card-uniform[data-brand*="m sub domain" i] {
+    border-left: 5px solid #fed7aa;
+  }
+
+  .card-uniform[data-brand*="m sub domain" i] .drag-handle {
+    background: #fed7aa;
+  }
+
+  .card-uniform[data-brand*="m sub domain" i]:hover .drag-handle {
+    background: #fbbf24;
+  }
+
+  .card-uniform[data-brand*="m sub domain" i] .brand-indicator {
+    background: #fed7aa;
+    border-color: #fbbf24;
+  }
+
+  .drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d1d5db;
+    cursor: grab;
+    transition: all 0.3s ease;
+    z-index: 10;
+    border-radius: 0;
+  }
+
+  .drag-handle:active {
+    cursor: grabbing;
+    opacity: 0.8;
+  }
+
+  .drag-dots {
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 0.8;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(90deg);
+    transition: color 0.3s ease;
+    letter-spacing: 2px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 1.2fr 0.8fr 1.2fr 1fr 1fr 1.2fr 1fr;
+    gap: 15px;
+    padding: 16px 20px 16px 35px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #5a5a5a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .field-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    word-wrap: break-word;
+    line-height: 1.3;
+  }
+
+  .brand-text {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .campaign-text {
+    color: #374151;
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .date-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .date-section .field-label {
+    margin-bottom: 6px;
+  }
+
+  .date-highlight {
+    background: linear-gradient(135deg, #067be1 0%, #3b82f6 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(6, 123, 225, 0.3);
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .actions-section {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-date-info {
+    font-size: 9px;
+    color: #9ca3af;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-btn, .delete-btn {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-btn:hover {
+    background: #e5f3ff;
+    border-color: #067be1;
+    transform: scale(1.05);
+  }
+
+  .delete-btn:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    transform: scale(1.05);
+  }
+
   /* Enhanced interactions and micro-animations */
   .control-panel {
     transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -852,31 +1255,6 @@
     transform: translateY(-1px);
   }
 
-  .control-panel input[type="date"]:focus,
-  .control-panel select:focus {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
-  }
-
-  .card {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.5s;
-  }
-
-  .card:hover::before {
-    left: 100%;
-  }
 
   .card .btns button {
     transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -911,7 +1289,7 @@
     transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
 
-  .list.flex-bn:hover {
+  .list.flex-bn:hover:not(.sticky) {
     background-color: rgba(6, 123, 225, 0.05);
     transform: translateX(5px);
   }
@@ -924,8 +1302,8 @@
 
   #emailModal input:focus,
   #emailModal select:focus {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   /* Floating action feedback */
@@ -950,8 +1328,8 @@
   }
 
   .searchInput:focus {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 3px rgba(6, 123, 225, 0.1);
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   /* Smooth button loading states */
@@ -965,13 +1343,16 @@
   }
 
   /* Enhanced drag feedback */
-  .card[draggable="true"] {
-    cursor: grab;
-    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  .sortable-ghost {
+    opacity: 0.4;
   }
 
-  .card[draggable="true"]:active {
-    cursor: grabbing;
+  .sortable-chosen {
+    opacity: 1;
+  }
+
+  .drag-active {
+    opacity: 0.5;
   }
 
   /* Smooth dialog animations */
@@ -998,18 +1379,22 @@
     }
   }
 
-  /* Mobile Responsive Styles for Index Page */
+  /* Mobile Responsive Styles for Grid Cards */
   @media (max-width: 768px) {
     .control-panel {
       flex-direction: column !important;
-      gap: 20px;
+      gap: 10px !important;
       padding: 15px !important;
     }
 
+    .control-panel > * {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
     .control-panel > div {
-      width: 100%;
-      flex-direction: column !important;
-      gap: 15px !important;
+      flex-direction: row !important;
+      justify-content: space-between;
     }
 
     .control-panel label {
@@ -1029,25 +1414,79 @@
       margin-top: 5px;
     }
 
-    #segmentation-list {
-      flex-direction: column;
-      gap: 15px !important;
-    }
-
-    .card {
+    /* Control inputs responsive */
+    .control-input,
+    .control-button {
       width: 100% !important;
-      min-width: unset !important;
+      max-width: none !important;
     }
 
-    .flex-box {
+    /* Color legend responsive */
+    .list-info-section {
       flex-direction: column !important;
-      gap: 10px !important;
+      gap: 15px !important;
+      align-items: flex-start !important;
     }
 
-    .box {
+    .color-legend {
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+    }
+
+    /* Card grid responsive layout */
+    .drag-handle {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
       width: 100% !important;
-      padding: 10px !important;
-      text-align: left !important;
+      height: 35px !important;
+      border-radius: 8px 8px 0 0 !important;
+      border-right: none !important;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5) !important;
+    }
+
+    /* Mobile brand-based colors - Light shades */
+    .card-uniform[data-brand*="main domain" i] .drag-handle {
+      background: #bbf7d0 !important;
+    }
+
+    .card-uniform[data-brand*="p sub domain" i] .drag-handle {
+      background: #bfdbfe !important;
+    }
+
+    .card-uniform[data-brand*="m sub domain" i] .drag-handle {
+      background: #fed7aa !important;
+    }
+
+    .drag-dots {
+      transform: rotate(0deg) !important;
+      writing-mode: horizontal-tb !important;
+      font-size: 16px !important;
+      letter-spacing: 4px !important;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 12px !important;
+      padding: 45px 15px 15px 15px !important;
+    }
+
+    .grid-item {
+      padding: 8px !important;
+      background: #f9fafb !important;
+      border-radius: 6px !important;
+      border: 1px solid #e5e7eb !important;
+    }
+
+    .date-section {
+      grid-column: 1 / -1 !important;
+    }
+
+    .actions-section {
+      grid-column: 1 / -1 !important;
+      margin-top: 10px !important;
     }
 
     /* Modal responsive */
@@ -1079,12 +1518,6 @@
     .list p {
       width: 100% !important;
       font-size: 14px !important;
-    }
-
-    /* Search bar responsive */
-    .searchInput {
-      width: 100% !important;
-      margin-bottom: 10px;
     }
 
     /* Filter dropdown responsive */
@@ -1122,22 +1555,6 @@
       width: 95% !important;
       max-width: none !important;
     }
-
-    /* Cards drag indicator */
-    .card[draggable="true"] {
-      position: relative;
-      padding-top: 25px !important;
-    }
-
-    .card[draggable="true"]::before {
-      content: "⋮⋮";
-      position: absolute;
-      top: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #999;
-      font-size: 12px;
-    }
   }
 
   @media (max-width: 480px) {
@@ -1154,20 +1571,39 @@
       padding: 10px !important;
     }
 
-    .card {
+    .card-uniform {
+      margin-bottom: 10px !important;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
       padding: 10px !important;
     }
 
-    .card p {
-      font-size: 12px !important;
-    }
-
-    .card .brand {
+    .brand-text {
       font-size: 14px !important;
     }
 
-    .card .btns button {
-      padding: 5px !important;
+    .campaign-text {
+      font-size: 12px !important;
+    }
+
+    .field-label {
+      font-size: 8px !important;
+    }
+
+    .field-value {
+      font-size: 12px !important;
+    }
+
+    .date-highlight {
+      font-size: 11px !important;
+      padding: 6px 10px !important;
+    }
+
+    .action-buttons button {
+      padding: 4px !important;
     }
 
     .emailCount {
@@ -1202,12 +1638,17 @@
 
   /* Touch-friendly adjustments */
   @media (hover: none) and (pointer: coarse) {
-    .card {
+    .drag-handle {
       cursor: grab;
+      width: 25px;
     }
 
-    .card:active {
+    .drag-handle:active {
       cursor: grabbing;
+    }
+
+    .drag-dots {
+      font-size: 16px !important;
     }
 
     button, .btn-primary {
@@ -1219,6 +1660,30 @@
     select {
       min-height: 44px;
     }
+
+    .card-search-input {
+      min-height: 44px;
+    }
+  }
+
+  /* Remove all focus effects globally */
+  * {
+    outline: none !important;
+  }
+
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: inherit !important;
+  }
+
+  input:focus,
+  select:focus,
+  button:focus,
+  textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
   }
 
   /* Landscape mode for mobile */

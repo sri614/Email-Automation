@@ -95,7 +95,7 @@
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <div class="mb-8 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-indigo-500 mb-2"><i class="fas fa-list-check"></i>
+            <h1 class="font-bold text-indigo-500 mb-2" style="font-size: 28px;"><i class="fas fa-list-check" style="font-size: 28px;"></i>
                 <span>List Manager</span>
             </h1>
         </div>
@@ -219,6 +219,38 @@
                 </div>
             </div>
         </div>
+
+        <!-- Email List Inclusion Statistics -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8 card-hover border border-gray-200">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-purple-700 flex items-center">
+                    <i class="fas fa-chart-bar mr-2 text-purple-500"></i>
+                    Email List Inclusion Statistics
+                </h2>
+                <span class="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-lg" id="inclusion-count">0 Emails</span>
+            </div>
+
+            <div class="mb-4">
+                <label for="inclusion-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter emails by date:</label>
+                <select id="inclusion-filter"
+                    class="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option value="today">Today</option>
+                    <option value="tomorrow">T+1 Days</option>
+                    <option value="tplus2">T+2 Days</option>
+                    <option value="tplus3">T+3 Days</option>
+                    <option value="tplus4">T+4 Days</option>
+                    <option value="all" selected>All Emails</option>
+                </select>
+            </div>
+
+            <div class="max-h-96 overflow-y-auto pr-2" id="inclusion-container">
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-list-ul text-4xl mb-3"></i>
+                    <p>No email data available yet</p>
+                    <p class="text-sm mt-2">Create associations first to see inclusion statistics</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -226,6 +258,126 @@
         let emails = [];
         let lists = [];
         let associations = [];
+
+        // Update and render inclusion statistics
+        function updateInclusionStatistics() {
+            const currentFilter = document.getElementById('inclusion-filter').value;
+            filterInclusionStatistics(currentFilter);
+        }
+
+        // Filter inclusion statistics based on date
+        function filterInclusionStatistics(filterType) {
+            console.log(`Filtering inclusion statistics for: ${filterType}`);
+
+            // First filter associations based on the association filter
+            const associationFilter = document.getElementById('association-filter').value;
+            const filteredAssociations = associations.filter(assoc => {
+                return dateMatchesFilter(assoc.date, associationFilter);
+            });
+
+            // Calculate inclusion statistics from filtered associations
+            const inclusionStats = calculateInclusionStatistics(filteredAssociations);
+
+            // Further filter the statistics based on the inclusion filter if different
+            const filteredStats = inclusionStats.filter(stat => {
+                return dateMatchesFilter(stat.date, filterType);
+            });
+
+            console.log(`Filtered inclusion stats count: ${filteredStats.length}`);
+            renderInclusionStatistics(filteredStats);
+
+            // Update the count badge
+            const countElement = document.getElementById('inclusion-count');
+            if (countElement) {
+                countElement.textContent = `${filteredStats.length} Emails`;
+            }
+        }
+
+        // Calculate inclusion statistics from associations data
+        function calculateInclusionStatistics(associationsToUse = null) {
+            const assocs = associationsToUse || associations;
+
+            if (assocs.length === 0) {
+                return [];
+            }
+
+            // Group associations by email
+            const emailGroups = {};
+
+            assocs.forEach(assoc => {
+                if (!emailGroups[assoc.emailId]) {
+                    emailGroups[assoc.emailId] = {
+                        emailId: assoc.emailId,
+                        emailName: assoc.emailName,
+                        date: assoc.date,
+                        lists: []
+                    };
+                }
+
+                emailGroups[assoc.emailId].lists.push({
+                    listId: assoc.listId,
+                    listName: assoc.listName
+                });
+            });
+
+            // Convert to array format
+            return Object.values(emailGroups);
+        }
+
+        // Render inclusion statistics in the UI
+        function renderInclusionStatistics(statsToRender) {
+            const container = document.getElementById('inclusion-container');
+
+            if (statsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-list-ul text-4xl mb-3"></i>
+                        <p>No email data available yet</p>
+                        <p class="text-sm mt-2">Create associations first to see inclusion statistics</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    ${statsToRender.map(stat => `
+                        <div class="card bg-white border border-purple-200 rounded-lg p-4 w-full" data-date="${stat.date}">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">${stat.date ? formatDate(stat.date) : 'No Date'}</span>
+                                <span class="bg-purple-600 text-white text-xs font-medium px-2 py-1 rounded-full">
+                                    ${stat.lists.length} List${stat.lists.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="email-card bg-indigo-50 rounded-lg p-3">
+                                    <h4 class="font-medium text-indigo-700 mb-1">Email</h4>
+                                    <p class="text-sm">${stat.emailName}</p>
+                                    <p class="text-xs text-indigo-500">ID: ${stat.emailId}</p>
+                                </div>
+                                <div class="lists-card bg-green-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                                    <h4 class="font-medium text-green-700 mb-2">Included Lists (${stat.lists.length})</h4>
+                                    <div class="space-y-2">
+                                        ${stat.lists.map(list => `
+                                            <div class="bg-white border border-green-100 rounded-md p-2">
+                                                <p class="text-xs font-medium text-gray-800">${list.listName}</p>
+                                                <div class="flex justify-between items-center mt-1">
+                                                    <p class="text-xs text-green-500">ID: ${list.listId}</p>
+                                                    <a href="https://app.hubspot.com/contacts/5686032/objectLists/views/all?query=${encodeURIComponent(list.listName)}"
+                                                       target="_blank" class="text-blue-500 hover:text-blue-700 text-xs">
+                                                        <i class="fas fa-external-link-alt mr-1"></i>View list
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Load data from APIs
@@ -235,6 +387,7 @@
             // Initialize the UI with data
             renderEmails(emails);
             updateCounts();
+            updateInclusionStatistics();
 
             // Set up event listeners for filters
             document.getElementById('email-filter').addEventListener('change', function () {
@@ -247,6 +400,18 @@
 
             document.getElementById('association-filter').addEventListener('change', function () {
                 filterAssociations(this.value);
+                // Sync with inclusion statistics
+                const inclusionFilter = document.getElementById('inclusion-filter');
+                inclusionFilter.value = this.value;
+                filterInclusionStatistics(this.value);
+            });
+
+            document.getElementById('inclusion-filter').addEventListener('change', function () {
+                // Sync with association filter
+                const associationFilter = document.getElementById('association-filter');
+                associationFilter.value = this.value;
+                filterAssociations(this.value);
+                filterInclusionStatistics(this.value);
             });
 
             // Set up event listener for creating associations
@@ -493,29 +658,26 @@
         }
 
 
-        // Function to normalize names by removing tier information and other variations
+        // Function to normalize names by removing ONLY tier information, preserving Main/Sub in brand names
         function normalizeName(name) {
             if (!name) return '';
 
-            // Remove tier information (Tier 0, Tier 1, Tier 2, Tier A, Tier B, Tier C, etc.)
+            // Remove ONLY tier-related information, NOT Main/Sub when they're part of brand names
             let normalized = name
-                .replace(/\s*Tier\s*\d+\s*/gi, '')  // Remove Tier with numbers (0, 1, 2, etc.)
-                .replace(/\s*Tier\s*[A-Z]\s*/gi, '') // Remove Tier with letters (A, B, C, etc.)
-                .replace(/\s*Tier\s*Zero\s*/gi, '') // Remove Tier Zero
-                .replace(/\s*T\d+\s*/gi, '')         // Remove T0, T1, T2, etc.
-                .replace(/\s*-\s*Tier\s*\d+\s*/gi, '') // Remove - Tier 0, - Tier 1, - Tier 2, etc.
-                .replace(/\s*-\s*Tier\s*[A-Z]\s*/gi, '') // Remove - Tier A, - Tier B, etc.
-                .replace(/\s*-\s*Tier\s*Zero\s*/gi, '') // Remove - Tier Zero
-                .replace(/\s*-\s*Main\s*/gi, '')
-                .replace(/\s*-\s*Secondary\s*/gi, '')
-                .replace(/\s*-\s*Primary\s*/gi, '')
+                // Remove tier patterns that are clearly tier information
+                .replace(/\s+-\s+Tier\s*\d+[A-Z]?\s*/gi, '')  // Remove " - Tier 1", " - Tier 2", " - Tier 0A", etc.
+                .replace(/\s+-\s+Tier\s*[A-Z]+\s*/gi, '') // Remove " - Tier A", " - Tier B", etc.
+                .replace(/\s+-\s+T\d+[A-Z]?\s*/gi, '')  // Remove " - T0", " - T1", " - T2", etc.
+                // Only remove Main/Secondary/Primary when they appear as tier suffixes (after a hyphen at the end)
+                .replace(/\s+-\s+Main\s*$/gi, '')  // Remove " - Main" only at the end
+                .replace(/\s+-\s+Secondary\s*$/gi, '')  // Remove " - Secondary" only at the end
+                .replace(/\s+-\s+Primary\s*$/gi, '')  // Remove " - Primary" only at the end
                 .trim();
 
             // Remove extra spaces, multiple hyphens, and clean up
             normalized = normalized
                 .replace(/\s+/g, ' ')        // Replace multiple spaces with single space
-                .replace(/\s*-\s*-\s*/g, ' - ') // Clean up multiple hyphens
-                .replace(/\s-\s/g, ' ')      // Remove standalone hyphens
+                .replace(/\s*-\s*-\s*/g, ' - ') // Clean up multiple hyphens to single hyphen
                 .replace(/\s+/g, ' ')        // Final cleanup of spaces
                 .trim();
 
@@ -532,18 +694,25 @@
                 return true;
             }
 
-            // Split into words and compare significant parts
-            const emailWords = normalizedEmail.split(' ').filter(word => word.length > 0);
-            const listWords = normalizedList.split(' ').filter(word => word.length > 0);
+            // Extract brand and campaign from normalized names
+            // Format: Brand - Campaign - Date/Details
+            const emailParts = normalizedEmail.split('-').map(p => p.trim()).filter(p => p.length > 0);
+            const listParts = normalizedList.split('-').map(p => p.trim()).filter(p => p.length > 0);
 
-            // Find the minimum number of words to compare (at least 3 or all available)
-            const minWords = Math.min(3, emailWords.length, listWords.length);
+            // Require at least brand + campaign for both
+            if (emailParts.length >= 2 && listParts.length >= 2) {
+                const emailBrand = emailParts[0];
+                const emailCampaign = emailParts[1];
+                const listBrand = listParts[0];
+                const listCampaign = listParts[1];
 
-            // Compare the first few significant words
-            const emailPrefix = emailWords.slice(0, minWords).join(' ');
-            const listPrefix = listWords.slice(0, minWords).join(' ');
+                // Match if brand and campaign are exactly the same
+                if (emailBrand === listBrand && emailCampaign === listCampaign) {
+                    return true;
+                }
+            }
 
-            return emailPrefix === listPrefix;
+            return false;
         }
 
 
@@ -625,8 +794,20 @@
                 return;
             }
 
-            container.innerHTML = emailsToRender.map(email => `
-        <div class="email-card card bg-white border border-gray-200 rounded-lg p-4 w-full" data-id="${email.id}" data-date="${email.date}">
+            // Check which emails have associations
+            const emailsWithAssociations = new Set();
+            associations.forEach(assoc => {
+                emailsWithAssociations.add(assoc.emailId);
+            });
+
+            container.innerHTML = emailsToRender.map(email => {
+                const hasAssociation = emailsWithAssociations.has(email.id);
+                const borderColor = hasAssociation ? 'border-green-400' : 'border-gray-200';
+                const bgColor = hasAssociation ? 'bg-green-50' : 'bg-white';
+
+                return `
+        <div class="email-card card ${bgColor} border ${borderColor} rounded-lg p-4 w-full relative" data-id="${email.id}" data-date="${email.date}">
+            ${hasAssociation ? '<div class="absolute top-2 right-2"><i class="fas fa-link text-green-500 text-xs"></i></div>' : ''}
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 text-sm">${email.name}</h3>
                 <div class="flex items-center space-x-2">
@@ -636,9 +817,10 @@
             <div class="text-sm text-gray-500">
                 <p class="text-xs">ID: ${email.id}</p>
                 ${email.scheduledTime ? `<p class="mt-1 text-xs">Scheduled: ${new Date(email.scheduledTime).toLocaleString()}</p>` : ''}
+                ${hasAssociation ? '<p class="mt-1 text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>Associated</p>' : ''}
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
             // Add event listeners to delete buttons
             addEmailDeleteListeners();
@@ -830,6 +1012,7 @@
             });
 
             if (type === 'email') {
+                // Re-render emails to show updated association status
                 renderEmails(filteredItems);
             }
 
@@ -853,23 +1036,37 @@
 
             console.log(`Filtered associations count: ${filteredAssociations.length}`);
             renderAssociations(filteredAssociations);
+
+            // Also update inclusion statistics with the same filter
+            const inclusionFilter = document.getElementById('inclusion-filter').value;
+            filterInclusionStatistics(inclusionFilter);
         }
 
         // Create associations between emails and lists with matching dates and similar names
         function createAssociations() {
             associations = [];
-            let debugInfo = [];
+            let unmatchedEmails = [];
+            let unmatchedLists = [];
 
             console.log('=== Starting Association Creation ===');
             console.log(`Total Emails: ${emails.length}`);
             console.log(`Total Lists: ${lists.length}`);
+
+
+            // Track which lists have been matched
+            const matchedListIds = new Set();
 
             emails.forEach(email => {
                 console.log(`\nProcessing Email: "${email.name}"`);
                 console.log(`  Email Date: ${email.date}`);
 
                 if (!email.date) {
-                    debugInfo.push(`Skipped email "${email.name}" - no date found`);
+                    unmatchedEmails.push({
+                        name: email.name,
+                        reason: 'No date found in email name',
+                        id: email.id,
+                        normalized: normalizeName(email.name)
+                    });
                     console.log('  ❌ No date found in email name');
                     return;
                 }
@@ -879,6 +1076,9 @@
 
                 let emailMatched = false;
                 let matchingLists = [];
+                let potentialMatches = [];
+                let listsWithSameDate = [];
+                let listsWithDifferentDate = [];
 
                 lists.forEach(list => {
                     if (!list.date) {
@@ -889,6 +1089,24 @@
                     const datesMatch = email.date === list.date;
                     const namesAreSimilar = namesMatch(email.name, list.name);
 
+                    // Collect all lists for better debugging
+                    if (datesMatch) {
+                        listsWithSameDate.push({
+                            name: list.name,
+                            normalized: normalizedListName,
+                            date: list.date
+                        });
+                    } else {
+                        // Check if the normalized names match but dates don't
+                        if (namesAreSimilar) {
+                            listsWithDifferentDate.push({
+                                name: list.name,
+                                normalized: normalizedListName,
+                                date: list.date
+                            });
+                        }
+                    }
+
                     if (datesMatch) {
                         console.log(`  Checking List: "${list.name}"`);
                         console.log(`    List Date: ${list.date}`);
@@ -897,6 +1115,12 @@
                         console.log(`    Names Similar: ${namesAreSimilar ? '✓' : '✗'}`);
 
                         if (!namesAreSimilar) {
+                            potentialMatches.push({
+                                listName: list.name,
+                                normalizedList: normalizedListName,
+                                normalizedEmail: normalizedEmailName,
+                                listDate: list.date
+                            });
                             console.log(`    Name mismatch details:`);
                             console.log(`      Email (normalized): "${normalizedEmailName}"`);
                             console.log(`      List (normalized): "${normalizedListName}"`);
@@ -915,6 +1139,7 @@
                         };
                         associations.push(association);
                         matchingLists.push(list.name);
+                        matchedListIds.add(list.id);
                         emailMatched = true;
                         console.log(`    ✅ MATCH FOUND! Association created.`);
                     }
@@ -923,18 +1148,46 @@
                 if (emailMatched) {
                     console.log(`  ✅ Email matched with ${matchingLists.length} list(s): ${matchingLists.join(', ')}`);
                 } else if (email.date) {
-                    debugInfo.push(`Email "${email.name}" (${email.date}) - no matching list found`);
+                    let detailedReason = '';
+
+                    if (listsWithSameDate.length > 0) {
+                        detailedReason = `Found ${listsWithSameDate.length} list(s) with same date but names don't match after normalization`;
+                    } else if (listsWithDifferentDate.length > 0) {
+                        detailedReason = `Found ${listsWithDifferentDate.length} list(s) with matching name but different date`;
+                    } else {
+                        detailedReason = 'No lists found with matching date or similar name';
+                    }
+
+                    unmatchedEmails.push({
+                        name: email.name,
+                        date: email.date,
+                        reason: detailedReason,
+                        id: email.id,
+                        normalized: normalizedEmailName,
+                        potentialMatches: potentialMatches,
+                        listsWithSameDate: listsWithSameDate,
+                        listsWithDifferentDate: listsWithDifferentDate
+                    });
                     console.log(`  ❌ No matching lists found for this email`);
+                }
+            });
+
+            // Find unmatched lists
+            lists.forEach(list => {
+                if (list.date && !matchedListIds.has(list.id)) {
+                    unmatchedLists.push({
+                        name: list.name,
+                        date: list.date,
+                        reason: 'No matching email found',
+                        id: list.id
+                    });
                 }
             });
 
             console.log('\n=== Association Results ===');
             console.log(`Total Associations Created: ${associations.length}`);
-
-            // Log debug info if needed
-            if (debugInfo.length > 0) {
-                console.log('\nUnmatched Items:', debugInfo);
-            }
+            console.log(`Unmatched Emails: ${unmatchedEmails.length}`);
+            console.log(`Unmatched Lists: ${unmatchedLists.length}`);
 
             // Apply current filter before rendering
             const currentFilter = document.getElementById('association-filter').value;
@@ -943,17 +1196,25 @@
             // Instead of filtering here, use the filterAssociations function to ensure consistency
             filterAssociations(currentFilter);
 
-            // Show notification with more detail
+            // Show detailed results dialog with filtered results
+            const filteredAssociations = associations.filter(assoc =>
+                dateMatchesFilter(assoc.date, currentFilter)
+            );
+
+            // Filter unmatched items based on current filter
+            const filteredUnmatchedEmails = unmatchedEmails.filter(email =>
+                !email.date || dateMatchesFilter(email.date, currentFilter)
+            );
+
+            const filteredUnmatchedLists = unmatchedLists.filter(list =>
+                !list.date || dateMatchesFilter(list.date, currentFilter)
+            );
+
+            showAssociationResults(filteredAssociations, filteredUnmatchedEmails, filteredUnmatchedLists, currentFilter);
+
+            // Update inclusion statistics when new associations are created
             if (associations.length > 0) {
-                const message = `Created ${associations.length} association${associations.length > 1 ? 's' : ''} between emails and lists`;
-                showNotification(message, 'success');
-                console.log('\n✅ Associations created successfully!');
-                console.log('Associations:', associations);
-            } else {
-                showNotification('No matching dates and names found. Check console for details.', 'info');
-                console.log('\n❌ No associations could be created. Check that:');
-                console.log('1. Email and list names are similar (ignoring tier info)');
-                console.log('2. Dates in names match exactly');
+                updateInclusionStatistics();
             }
         }
 
@@ -1111,7 +1372,7 @@
 
             const notification = document.createElement('div');
             notification.className = `notification fixed top-[200px] right-4 px-4 py-3 rounded-lg shadow-lg text-white font-medium z-50 ${type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
                 }`;
 
             notification.textContent = message;
@@ -1122,6 +1383,216 @@
             setTimeout(() => {
                 notification.remove();
             }, 3000);
+        }
+
+        // Show detailed association results in a dialog
+        function showAssociationResults(associations, unmatchedEmails, unmatchedLists, filterType) {
+            const dialog = document.createElement('div');
+            dialog.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50';
+
+            const filterLabel = filterType === 'all' ? 'All Dates' :
+                               filterType === 'today' ? 'Today' :
+                               filterType === 'tomorrow' ? 'T+1 Days' :
+                               filterType === 'tplus2' ? 'T+2 Days' :
+                               filterType === 'tplus3' ? 'T+3 Days' :
+                               filterType === 'tplus4' ? 'T+4 Days' : filterType;
+
+            dialog.innerHTML = `
+                <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
+                        <h2 class="text-2xl font-bold flex items-center">
+                            <i class="fas fa-link mr-3"></i>
+                            Association Results
+                        </h2>
+                        <p class="mt-2 text-purple-100">Filter: ${filterLabel}</p>
+                    </div>
+
+                    <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
+                        <!-- Summary Cards -->
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-green-600 font-medium">Matched</p>
+                                        <p class="text-2xl font-bold text-green-800">${associations.length}</p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-3xl text-green-500"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-amber-600 font-medium">Unmatched Emails</p>
+                                        <p class="text-2xl font-bold text-amber-800">${unmatchedEmails.length}</p>
+                                    </div>
+                                    <i class="fas fa-envelope text-3xl text-amber-500"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-blue-600 font-medium">Unmatched Lists</p>
+                                        <p class="text-2xl font-bold text-blue-800">${unmatchedLists.length}</p>
+                                    </div>
+                                    <i class="fas fa-list text-3xl text-blue-500"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Unmatched Emails Section -->
+                        ${unmatchedEmails.length > 0 ? `
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>
+                                    Unmatched Emails (${unmatchedEmails.length})
+                                </h3>
+                                <div class="space-y-2 max-h-60 overflow-y-auto">
+                                    ${unmatchedEmails.map(email => `
+                                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                            <div class="flex justify-between items-start">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-800">${email.name}</p>
+                                                    <p class="text-sm text-gray-600 mt-1">
+                                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                                        Date: ${email.date || 'No date'}
+                                                    </p>
+
+                                                    <!-- Main Reason -->
+                                                    <div class="bg-red-100 border border-red-200 rounded p-2 mt-2">
+                                                        <p class="text-xs text-red-800 font-semibold">
+                                                            <i class="fas fa-times-circle mr-1"></i>
+                                                            Reason: ${email.reason}
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Normalized Name for Debugging -->
+                                                    <div class="bg-white border border-gray-300 rounded p-2 mt-2">
+                                                        <p class="text-xs font-semibold text-gray-700 mb-1">Email after normalization:</p>
+                                                        <p class="text-xs text-purple-700 font-mono">"${email.normalized || 'N/A'}"</p>
+                                                    </div>
+
+                                                    <!-- Lists with Same Date -->
+                                                    ${email.listsWithSameDate && email.listsWithSameDate.length > 0 ? `
+                                                        <div class="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+                                                            <p class="text-xs font-semibold text-yellow-800 mb-1">
+                                                                <i class="fas fa-exclamation mr-1"></i>
+                                                                Lists with SAME date (${email.date}) but name mismatch:
+                                                            </p>
+                                                            ${email.listsWithSameDate.map(list => `
+                                                                <div class="ml-2 mt-1 bg-white p-1 rounded">
+                                                                    <p class="text-xs text-gray-700">• Original: "${list.name}"</p>
+                                                                    <p class="text-xs text-purple-700 ml-2 font-mono">Normalized: "${list.normalized}"</p>
+                                                                </div>
+                                                            `).join('')}
+                                                            <p class="text-xs text-red-600 mt-1 font-semibold">
+                                                                ⚠️ These lists have the correct date but names don't match after removing tier info
+                                                            </p>
+                                                        </div>
+                                                    ` : ''}
+
+                                                    <!-- Lists with Different Date -->
+                                                    ${email.listsWithDifferentDate && email.listsWithDifferentDate.length > 0 ? `
+                                                        <div class="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
+                                                            <p class="text-xs font-semibold text-blue-800 mb-1">
+                                                                <i class="fas fa-calendar-times mr-1"></i>
+                                                                Lists with matching name but DIFFERENT date:
+                                                            </p>
+                                                            ${email.listsWithDifferentDate.map(list => `
+                                                                <div class="ml-2 mt-1">
+                                                                    <p class="text-xs text-gray-700">• "${list.name}"</p>
+                                                                    <p class="text-xs text-blue-600 ml-2">Date: ${list.date}</p>
+                                                                </div>
+                                                            `).join('')}
+                                                        </div>
+                                                    ` : ''}
+
+                                                    <!-- No matching lists at all -->
+                                                    ${(!email.listsWithSameDate || email.listsWithSameDate.length === 0) &&
+                                                      (!email.listsWithDifferentDate || email.listsWithDifferentDate.length === 0) ? `
+                                                        <div class="bg-gray-100 border border-gray-300 rounded p-2 mt-2">
+                                                            <p class="text-xs text-gray-600">
+                                                                <i class="fas fa-search mr-1"></i>
+                                                                No lists found with this date or similar name pattern
+                                                            </p>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                                <span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded-full">
+                                                    ID: ${email.id}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Unmatched Lists Section -->
+                        ${unmatchedLists.length > 0 ? `
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-list-ul text-blue-500 mr-2"></i>
+                                    Unmatched Lists (${unmatchedLists.length})
+                                </h3>
+                                <div class="space-y-2 max-h-60 overflow-y-auto">
+                                    ${unmatchedLists.map(list => `
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <div class="flex justify-between items-start">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-800">${list.name}</p>
+                                                    <p class="text-sm text-gray-600 mt-1">
+                                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                                        ${list.date || 'No date'}
+                                                    </p>
+                                                    <p class="text-xs text-blue-700 mt-1">
+                                                        <i class="fas fa-info-circle mr-1"></i>
+                                                        ${list.reason}
+                                                    </p>
+                                                </div>
+                                                <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                                    ID: ${list.id}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Successful Associations -->
+                        ${associations.length > 0 ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Successful Associations (${associations.length})
+                                </h3>
+                                <div class="text-sm text-gray-600">
+                                    <p>${associations.length} email${associations.length !== 1 ? 's' : ''} successfully matched with lists.</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="bg-gray-100 px-6 py-4 flex justify-end">
+                        <button onclick="this.closest('.fixed').remove()"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            <i class="fas fa-times mr-2"></i>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            // Show notification summary
+            if (associations.length > 0) {
+                showNotification(`Created ${associations.length} association${associations.length > 1 ? 's' : ''}. ${unmatchedEmails.length} emails and ${unmatchedLists.length} lists remain unmatched.`, 'success');
+            } else {
+                showNotification(`No associations created. ${unmatchedEmails.length} emails and ${unmatchedLists.length} lists could not be matched.`, 'warning');
+            }
         }
 
         // Initial filter setup

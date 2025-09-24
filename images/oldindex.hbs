@@ -1,0 +1,410 @@
+<div class="flex-bn header__menu" style="position: relative;">
+  <p id="save-status" class="disable">Note: drag & drop to change order...</p>
+  <h1>Create lists</h1>
+
+  <div class="flex-bn">
+    <div class="filter-container mb-20">
+      <div class="filter-dropdown">
+        <label for="daysFilter">Days:</label>
+        <select id="daysFilter" class="filter-select">
+          <option value="all">All Days</option>
+          <option value="today">Today</option>
+          <option value="t+1">T+1 Days</option>
+          <option value="t+2">T+2 Days</option>
+          <option value="t+3">T+3 Days</option>
+        </select>
+      </div>
+      
+      <div class="filter-dropdown">
+        <label for="modeFilter">List Mode:</label>
+        <select id="modeFilter" class="filter-select">
+          <option value="BAU">BAU (Default)</option>
+          <option value="re-engagement">Re-engagement</option>
+          <option value="re-activation">Re-activation</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="openFormBtn" class="btn-primary" type="button">Add Lists</button>
+    <button id="runBtn" class="btn-primary" type="button">Run Automation</button>
+  </div>
+</div>
+
+<h4 class="emailCount mb-12">{{emails.length}} Lists</h4>
+
+{{#if hasEmails}}
+  <div class="flex" id="segmentation-list">
+    {{#each emails}}
+      <div class="card {{isType isMain this.domain}}" data-id="{{this._id}}" draggable="true">
+        <div class="flex-bn flex-bn--alignTop mb-12">
+          <div>
+            <p class="brand" title="brand">{{this.brand}}</p>
+            <p class="campaign" title="campaign: {{this.campaign}}">{{this.campaign}}</p>
+          </div>
+          <div class="text-right">
+            <p class="domain" title="domain">{{this.domain}}</p>
+            <p class="count" title="count">{{this.count}}</p>
+          </div>
+        </div>
+
+        <p class="date mb-12"><span class="js-date" data-iso="{{this.date}}"></span></p>
+
+        <div class="flex-box mb-12">
+          <p class="box"><span>Primary</span><br>{{this.primaryListId}}</p>
+          <p class="box"><span>Secondary</span><br>{{this.secondaryListId}}</p>
+          <p class="box"><span>Send Contacts</span><br>{{this.sendContactListId}}</p>
+        </div>
+
+        <div class="flex-bn">
+          <p class="edit-date" data-date="{{this.createdAt}}"></p>
+          <div class="flex-bn btns">
+            <button class="edit-btn" id="edit-btn" title="Edit" 
+              data-id="{{this._id}}" 
+              data-campaign="{{this.campaign}}"
+              data-brand="{{this.brand}}"
+              data-count="{{this.count}}"
+              data-primary-list-id="{{this.primaryListId}}"
+              data-secondary-list-id="{{this.secondaryListId}}"
+              data-send-contact-list-id="{{this.sendContactListId}}"
+              data-domain="{{this.domain}}"
+              data-date="{{this.date}}"><img src="/assets/edit-svgrepo-com.svg" width="14" height="14"></button>
+
+            <form action="/email/{{this._id}}?_method=DELETE" method="post">
+              <button type="submit" id="delete-btn" onclick="return confirm('Are you sure?')" title="Delete"><img src="/assets/delete-svgrepo-com.svg" width="14" height="14"></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <h3>No Emails</h3>
+{{/if}}
+
+<!-- Modal -->
+<div id="emailModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+  <div class="modal-content">
+    <span id="closeModal" class="close" aria-label="Close">&times;</span>
+    <form action="/add-email" method="POST" id="emailForm">
+     <h2>Fill the email details</h2>
+      <label for="campaign">Campaign:</label>
+      <input type="text" id="campaign" name="campaign" required />
+
+      <label for="brand">Brand:</label>
+      <input type="text" id="brand" name="brand" required />
+
+      <label for="count">Count:</label>
+      <input type="number" id="count" name="count" required />
+
+      <label for="primaryListId">Primary List ID:</label>
+      <input type="number" id="primaryListId" name="primaryListId" required />
+
+      <label for="secondaryListId">Secondary List ID:</label>
+      <input type="number" id="secondaryListId" name="secondaryListId" />
+
+      <label for="sendContactListId">Send Contacts List ID:</label>
+      <input type="number" id="sendContactListId" name="sendContactListId" required/>
+
+      <label for="domain">Domain:</label>
+      <select id="domain" name="domain" required>
+        <option value="" disabled selected>Select a domain</option>
+        <option value="Tier 1">Tier 1</option>
+        <option value="Tier 2">Tier 2</option>
+        <option value="Tier 3">Tier 3</option>
+        <option value="Tier 4">Tier 4</option>
+        <option value="Tier 0A">Tier 0A</option>
+        <option value="Tier 0B">Tier 0B</option>
+        <option value="Tier 0c">Tier 0c</option>
+      </select>
+
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" required />
+
+      <button id="form-btn" type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+
+<div class="flex-bn mb-12" style="background-color: rgb(234, 234, 234);padding:8px 10px;border-radius:4px">
+  <h2 style="margin-bottom: 0;">Created Lists (Today)</h2>
+  <div style="display: flex;gap:20px;">
+    <input class="searchInput" type="search" name="listSearch" id="listSearch" placeholder="search here">
+    <button class="btn-primary" style="white-space:nowrap" id="reload-btn">View all</button>
+  </div>
+</div>
+<h4 class="emailCount mb-12" id="list-count">{{lists.length}} Lists</h4>
+
+{{#if hasLists}}
+<div class="created-lists" style="height:400px;overflow-y:scroll;position:relative">
+  <div class="list flex-bn sticky">
+    <p class="heading"><strong>List id: </strong></p>
+    <p class="heading"><strong>List Name: </strong></p>
+    <p class="heading"><strong>Created date: </strong></p>
+  </div>
+  <ol id="list-container">
+    {{#each lists}}
+    <li style="margin-bottom: 20px;">
+      <div class="list flex-bn">
+        <p class="list-id">{{this.listId}}</p>
+        <p class="list-name">{{this.name}} <a href="https://app.hubspot.com/contacts/5686032/objectLists/views/all?query={{this.name}}" target="_blank">View list</a></p>
+        <p class="list-date"><span class="list-date-span" data-iso="{{this.createdDate}}"> {{this.createdDate}}</span></p>
+      </div>
+    </li>
+    {{/each}}
+  </ol>
+</div>
+{{else}}
+  <h3>No Lists created Today</h3>
+{{/if}}
+
+<script>
+  // 🔄 Reusable Drag-and-Drop SortableJS
+  function initDragAndDrop() {
+    const list = document.getElementById('segmentation-list');
+    const status = document.getElementById('save-status');
+
+    if (!list || !window.Sortable) return;
+
+    new Sortable(list, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'drag-active',
+      onEnd: async () => {
+        const ids = [...list.querySelectorAll('.card')].map(el => el.dataset.id);
+        try {
+          const res = await fetch('/api/segmentations/reorder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderedIds: ids })
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            status.textContent = "Order saved!";
+            status.classList.add("save-status");
+            status.classList.remove("disable");
+            setTimeout(() => status.textContent = "", 1500);
+          } else {
+            status.textContent = "Failed to save order.";
+          }
+        } catch (err) {
+          console.error("Reorder Error:", err);
+          status.textContent = "Server error.";
+        }
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initDragAndDrop(); // Initialize drag and drop
+
+    // Format dates
+    document.querySelectorAll(".js-date").forEach(el => {
+      const date = new Date(el.dataset.iso);
+      el.textContent = date.toLocaleDateString("en-GB", {
+        day: "numeric", month: "short", year: "numeric"
+      });
+    });
+
+    document.querySelectorAll(".list-date-span").forEach(el => {
+      const iso = el.getAttribute("data-iso");
+      if (!iso) return;
+      const d = new Date(iso);
+      const day = d.getDate();
+      const month = d.toLocaleString('en-US', { month: 'short' });
+      const year = d.getFullYear();
+      let hours = d.getHours();
+      const minutes = d.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      el.textContent = `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
+    });
+
+    document.querySelectorAll(".edit-date").forEach(el => {
+      const date = new Date(el.dataset.date);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      el.textContent = `${day}.${month}.${year} ${hours}.${minutes} ${ampm}`;
+    });
+
+    document.querySelectorAll(".campaign").forEach(el => {
+      el.textContent = `${el.textContent.slice(0, 18)}`;
+    });
+
+    // Modal edit form population
+    const popupForm = document.getElementById("emailModal");
+    const form = document.getElementById("emailForm");
+    const formBtn = document.getElementById("form-btn");
+    const campaignInput = document.getElementById("campaign");
+    const brandInput = document.getElementById("brand");
+    const countInput = document.getElementById("count");
+    const primaryListIdInput = document.getElementById("primaryListId");
+    const secondaryListIdInput = document.getElementById("secondaryListId");
+    const sendContactListIdInput = document.getElementById("sendContactListId");
+    const domainInput = document.getElementById("domain");
+    const dateInput = document.getElementById("date");
+
+    document.querySelectorAll(".edit-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        form.action = `/email/${button.dataset.id}/edit?_method=PUT`;
+        formBtn.textContent = "Update";
+        campaignInput.value = button.dataset.campaign;
+        brandInput.value = button.dataset.brand;
+        countInput.value = button.dataset.count;
+        primaryListIdInput.value = button.dataset.primaryListId;
+        secondaryListIdInput.value = button.dataset.secondaryListId;
+        sendContactListIdInput.value = button.dataset.sendContactListId;
+        domainInput.value = button.dataset.domain;
+        dateInput.value = button.dataset.date;
+        popupForm.style.display = "block";
+      });
+    });
+
+    // Filters
+    const emailCards = document.querySelectorAll('.card');
+    const daysFilter = document.getElementById('daysFilter');
+    const modeFilter = document.getElementById('modeFilter');
+
+    [daysFilter, modeFilter].forEach(filter => {
+      filter.addEventListener('change', applyFilters);
+    });
+
+    function applyFilters() {
+      const selectedDay = daysFilter.value;
+      const selectedMode = modeFilter.value.toLowerCase();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      emailCards.forEach(card => {
+        const dateElement = card.querySelector('.js-date');
+        const cardDate = new Date(dateElement.dataset.iso);
+        cardDate.setHours(0, 0, 0, 0);
+        const campaignElement = card.querySelector('.campaign');
+        const cardCampaign = campaignElement.textContent.toLowerCase();
+
+        // day match
+        let dayMatch = true;
+        if (selectedDay !== 'all') {
+          const compareDate = new Date(today);
+          if (selectedDay.startsWith('t+')) {
+            compareDate.setDate(today.getDate() + parseInt(selectedDay.slice(2)));
+          }
+          dayMatch = cardDate.getTime() === compareDate.getTime();
+        }
+
+        // mode match
+        let modeMatch = true;
+        if (selectedMode !== 'bau') {
+          modeMatch = cardCampaign.includes(selectedMode);
+        } else {
+          modeMatch = !cardCampaign.includes('re-engagement') && !cardCampaign.includes('re-activation');
+        }
+
+        card.style.display = (dayMatch && modeMatch) ? 'block' : 'none';
+      });
+
+      // update count
+      const visibleCount = document.querySelectorAll('.card[style="display: block;"]').length;
+      document.querySelector('h4.emailCount').textContent = `${visibleCount} Lists`;
+    }
+
+    applyFilters(); // apply on load
+
+    // Run Automation Button
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      const runBtn = document.getElementById('runBtn');
+      const originalText = runBtn.textContent;
+
+      try {
+        runBtn.disabled = true;
+        runBtn.textContent = 'Processing...';
+        const daysFilter = document.getElementById('daysFilter').value;
+        const modeFilter = document.getElementById('modeFilter').value;
+
+        const response = await fetch('http://localhost:8000/api/create-lists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ daysFilter, modeFilter })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error(`No campaigns found for:\n• Date: ${daysFilter.replace('t+', 'T+')}\n• Mode: ${modeFilter}`);
+          }
+          throw new Error(result.error || 'Failed to create lists');
+        }
+
+        alert(`Successfully processed ${result.count} campaigns matching:\n• Date: ${daysFilter.replace('t+', 'T+')}\n• Mode: ${modeFilter}`);
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = originalText;
+      }
+    });
+
+    // Search functionality
+    let searchOn = false;
+    let query = "";
+    const searchInput = document.getElementById("listSearch");
+    const reloadBtn = document.getElementById("reload-btn");
+
+    searchInput.addEventListener("input", (e) => {
+      query = e.target.value.trim().toLowerCase();
+      searchOn = query.length > 0;
+      reloadBtn.textContent = searchOn ? "Search" : "View all";
+    });
+
+    reloadBtn.addEventListener("click", async () => {
+      try {
+        const response = await fetch("/api/created-lists");
+        let data = await response.json();
+        const container = document.getElementById("list-container");
+        container.innerHTML = "";
+
+        if (searchOn) {
+          const words = query.trim().split(/\s+/);
+          data = data.filter(item => words.every(word => new RegExp(word, 'i').test(item.name)));
+        }
+
+        if (data.length === 0) {
+          container.innerHTML = "<p>No matching lists found.</p>";
+          document.getElementById("list-count").textContent = "0 Lists";
+          return;
+        }
+
+        document.getElementById("list-count").textContent = `${data.length} Lists`;
+        data.forEach(item => {
+          const d = new Date(item.createdDate);
+          const day = d.getDate();
+          const month = d.toLocaleString('en-US', { month: 'short' });
+          const year = d.getFullYear();
+          let hours = d.getHours();
+          const minutes = d.getMinutes().toString().padStart(2, '0');
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12 || 12;
+
+          container.innerHTML += `
+            <li style="margin-bottom: 20px;">
+              <div class="list flex-bn">
+                <p class="list-id">${item.listId}</p>
+                <p class="list-name">${item.name} <a href="https://app.hubspot.com/contacts/5686032/objectLists/views/all?query=${item.name}" target="_blank">View list</a></p>
+                <p class="list-date">${day} ${month} ${year} ${hours}:${minutes}${ampm}</p>
+              </div>
+            </li>`;
+        });
+      } catch (error) {
+        console.error("Failed to reload lists:", error);
+        document.getElementById("list-container").innerHTML = "<p>Error loading lists.</p>";
+      }
+    });
+  });
+</script>

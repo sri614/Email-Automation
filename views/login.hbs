@@ -6,6 +6,24 @@
   <title>Login | Your App Name</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
+    /* Remove all focus effects globally */
+    * {
+      outline: none !important;
+    }
+
+    *:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus,
+    textarea:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
     /* Login Page Specific Styles */
 
     main{
@@ -87,7 +105,12 @@
       transition: all 0.2s ease;
     }
 
-    .input-field input:is(:focus, :valid) {
+    .input-field input:is(:valid) {
+      border-bottom-color: #764ba2;
+    }
+
+    .input-field input:focus {
+      outline: none !important;
       border-bottom-color: #764ba2;
     }
 
@@ -110,7 +133,11 @@
       padding: 10px;
     }
 
-    .input-field input:is(:focus, :valid) ~ i {
+    .input-field input:is(:valid) ~ i {
+      color: #764ba2;
+    }
+
+    .input-field input:focus ~ i {
       color: #764ba2;
     }
 

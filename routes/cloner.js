@@ -12,10 +12,71 @@ const ClonedEmail = require("../models/clonedEmail");
 
 const processedEmailsCache = new Set();
 
+// Batch check multiple emails at once for better performance
+async function batchCheckEmailsExist(emailNames) {
+  if (emailNames.length === 0) return {};
+
+  try {
+    console.log(`Batch checking ${emailNames.length} emails for existence`);
+
+    // Create a map to store results
+    const existsMap = {};
+
+    // Initialize all as not existing
+    emailNames.forEach(name => existsMap[name] = false);
+
+    // Check each email individually but with reduced delays (still more efficient than original)
+    // HubSpot's search API is complex for exact name matching, so individual checks are more reliable
+    for (let i = 0; i < emailNames.length; i += 5) {
+      const batch = emailNames.slice(i, i + 5);
+
+      const batchPromises = batch.map(async (emailName) => {
+        try {
+          const response = await axios.get(`${BASE_URL}`, {
+            params: {
+              name: emailName,
+              limit: 1,
+            },
+            headers: {
+              Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const exists = response.data.total > 0 || (response.data.results && response.data.results.length > 0);
+          return { emailName, exists };
+        } catch (error) {
+          console.error(`Error checking ${emailName}:`, error.message);
+          return { emailName, exists: false };
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      batchResults.forEach(result => {
+        existsMap[result.emailName] = result.exists;
+      });
+
+      // Small delay between batches
+      if (i + 5 < emailNames.length) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
+
+    const existingCount = Object.values(existsMap).filter(exists => exists).length;
+    console.log(`Batch check completed. Found ${existingCount} existing emails out of ${emailNames.length}`);
+    return existsMap;
+  } catch (error) {
+    console.error('Error in batch email check:', error.response?.data || error.message);
+    // Return empty map on error to allow cloning attempts
+    const existsMap = {};
+    emailNames.forEach(name => existsMap[name] = false);
+    return existsMap;
+  }
+}
+
+// Keep single check for fallback
 async function checkEmailExists(emailName) {
   try {
-    console.log(`Checking if email exists: "${emailName}"`);
-
     const response = await axios.get(`${BASE_URL}`, {
       params: {
         name: emailName,
@@ -27,23 +88,10 @@ async function checkEmailExists(emailName) {
       },
     });
 
-    console.log(`API Response for "${emailName}":`, {
-      total: response.data.total,
-      count: response.data.results?.length || 0,
-      status: response.status
-    });
-
-    // Check both total count and results array
     const exists = response.data.total > 0 || (response.data.results && response.data.results.length > 0);
-    console.log(`Email "${emailName}" exists: ${exists}`);
-
     return exists;
   } catch (error) {
-    console.error(
-      `Error checking email existence for "${emailName}":`,
-      error.response?.data || error.message
-    );
-    // Return false on error to allow cloning attempt
+    console.error(`Error checking email existence for "${emailName}":`, error.response?.data || error.message);
     return false;
   }
 }
@@ -139,27 +187,8 @@ async function cloneAndScheduleEmail(
       return { success: false, skipped: true, reason: "Duplicate in current batch" };
     }
 
-    // Check MongoDB for duplicates first (faster than API call)
-    try {
-      const existingInDB = await ClonedEmail.findOne({
-        clonedEmailName: newEmailName
-      });
-
-      if (existingInDB) {
-        console.log(`Skipped: "${newEmailName}" already exists in database`);
-        return { success: false, skipped: true, reason: "Duplicate in database" };
-      }
-    } catch (dbError) {
-      console.error(`Error checking MongoDB: ${dbError.message}`);
-      // Continue with cloning despite database check error
-    }
-
-    // Check HubSpot for duplicates
-    const emailExists = await checkEmailExists(newEmailName);
-    if (emailExists) {
-      console.log(`Skipped: "${newEmailName}" already exists in HubSpot`);
-      return { success: false, skipped: true, reason: "Duplicate in HubSpot" };
-    }
+    // Skip individual duplicate checks here - will be handled in batch
+    // This optimization is handled by the new batch processing logic
 
     processedEmailsCache.add(newEmailName);
 
@@ -286,6 +315,34 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
       clonedEmails: [],
     };
 
+    console.log('🚀 Starting optimized batch processing...');
+
+    // First, get all email names in batch
+    console.log('📥 Fetching email information...');
+    const emailInfoMap = new Map();
+
+    for (const emailId of emailIds) {
+      try {
+        const response = await axios.get(`${BASE_URL}/${emailId}`, {
+          headers: {
+            Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            properties: "name"
+          }
+        });
+        emailInfoMap.set(emailId, response.data.name);
+      } catch (error) {
+        console.error(`Error getting email info for ${emailId}:`, error.message);
+        stats.errors++;
+      }
+    }
+
+    // Generate all email names and schedules
+    const emailNamesToCheck = [];
+    const emailScheduleMap = new Map();
+
     for (let day = 1; day <= cloningCount; day++) {
       let morningMinuteCounter = 0;
       let afternoonMinuteCounter = 0;
@@ -295,8 +352,16 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
 
       for (let i = 0; i < emailIds.length; i++) {
         const emailId = emailIds[i];
+        const originalEmailName = emailInfoMap.get(emailId);
+
+        if (!originalEmailName) {
+          stats.errors++;
+          continue;
+        }
+
         let hour, minute;
 
+        // Calculate timing (same logic as before)
         switch (strategy) {
           case "morning":
             hour = 11;
@@ -319,19 +384,41 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
             break;
 
           case "custom":
-            // Fixed custom time logic
             const startHour = customOptions.customStartHour || 11;
             const startMinute = customOptions.customStartMinute || 0;
             const interval = customOptions.customInterval || 5;
 
-            // Calculate total minutes from start time
             const startTotalMinutes = startHour * 60 + startMinute;
-            const currentTotalMinutes = startTotalMinutes + (customTimeCounter * interval);
+            const scheduledTotalMinutes = startTotalMinutes + (customTimeCounter * interval);
 
-            // Convert back to hours and minutes
-            hour = Math.floor(currentTotalMinutes / 60) % 24;
-            minute = currentTotalMinutes % 60;
+            let scheduledHour = Math.floor(scheduledTotalMinutes / 60);
+            let scheduledMinute = scheduledTotalMinutes % 60;
 
+            if (scheduledHour === 11 && scheduledMinute <= 55) {
+              hour = scheduledHour;
+              minute = scheduledMinute;
+            } else if (scheduledHour < 11 || (scheduledHour === 11 && scheduledMinute <= 55)) {
+              hour = 11;
+              minute = customTimeCounter * interval;
+              if (minute > 55) {
+                const afternoonOffset = minute - 55 - 1;
+                hour = 16;
+                minute = afternoonOffset;
+                if (minute >= 60) {
+                  hour += Math.floor(minute / 60);
+                  minute = minute % 60;
+                }
+              }
+            } else {
+              const morningSlots = Math.floor(56 / interval);
+              const afternoonIndex = customTimeCounter - morningSlots;
+              hour = 16;
+              minute = afternoonIndex * interval;
+              if (minute >= 60) {
+                hour += Math.floor(minute / 60);
+                minute = minute % 60;
+              }
+            }
             customTimeCounter++;
             break;
 
@@ -351,22 +438,95 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
               hour += Math.floor(minute / 60);
               minute = minute % 60;
             }
-
             emailIndex++;
             break;
         }
 
+        // Generate the expected email name
+        const datePattern = /\d{2} \w{3} \d{4}/;
+        const dateMatch = originalEmailName.match(datePattern);
+
+        if (dateMatch) {
+          let clonedDate = new Date(dateMatch[0]);
+          clonedDate.setDate(clonedDate.getDate() + day);
+          clonedDate.setHours(hour, minute, 0, 0);
+
+          const updatedDate = clonedDate
+            .toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+            .replace(",", "")
+            .replace("Sept", "Sep");
+
+          const newEmailName = originalEmailName.replace(dateMatch[0], updatedDate);
+
+          emailNamesToCheck.push(newEmailName);
+          emailScheduleMap.set(newEmailName, {
+            originalEmailId: emailId,
+            day,
+            hour,
+            minute,
+            scheduledTime: clonedDate,
+            originalEmailName
+          });
+        } else {
+          stats.errors++;
+          console.log(`⚠️ No date pattern found in: ${originalEmailName}`);
+        }
+
         stats.totalAttempted++;
+      }
+    }
 
-        const result = await cloneAndScheduleEmail(
-          emailId,
-          day,
-          hour,
-          minute,
-          strategy,
-          customOptions
+    // Batch check for duplicates in MongoDB
+    console.log('📊 Batch checking database duplicates...');
+    const dbDuplicates = await ClonedEmail.find({
+      clonedEmailName: { $in: emailNamesToCheck }
+    }).select('clonedEmailName');
+
+    const dbDuplicateNames = new Set(dbDuplicates.map(doc => doc.clonedEmailName));
+
+    // Batch check for duplicates in HubSpot
+    console.log('🔍 Batch checking HubSpot duplicates...');
+    const hubspotDuplicates = await batchCheckEmailsExist(emailNamesToCheck);
+
+    // Filter out duplicates before processing
+    const emailsToProcess = emailNamesToCheck.filter(name => {
+      if (processedEmailsCache.has(name) || dbDuplicateNames.has(name) || hubspotDuplicates[name]) {
+        stats.duplicatesSkipped++;
+        console.log(`⚠️ Skipping duplicate: ${name}`);
+        return false;
+      }
+      processedEmailsCache.add(name);
+      return true;
+    });
+
+    console.log(`✅ Processing ${emailsToProcess.length} emails (${stats.duplicatesSkipped} duplicates skipped)`);
+
+    // Process remaining emails in parallel batches
+    const BATCH_SIZE = 3; // Process 3 emails simultaneously
+    for (let i = 0; i < emailsToProcess.length; i += BATCH_SIZE) {
+      const batch = emailsToProcess.slice(i, i + BATCH_SIZE);
+
+      const batchPromises = batch.map(async (emailName) => {
+        const schedule = emailScheduleMap.get(emailName);
+        const result = await cloneAndScheduleEmailOptimized(
+          schedule.originalEmailId,
+          schedule.day,
+          schedule.hour,
+          schedule.minute,
+          emailName,
+          schedule.scheduledTime,
+          strategy
         );
+        return result;
+      });
 
+      const batchResults = await Promise.all(batchPromises);
+
+      batchResults.forEach(result => {
         if (result.success) {
           stats.successfullyCloned++;
           stats.clonedEmails.push({
@@ -374,13 +534,14 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
             name: result.emailName,
             time: result.scheduledTime,
           });
-        } else if (result.skipped) {
-          stats.duplicatesSkipped++;
         } else {
           stats.errors++;
         }
+      });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Small delay between batches
+      if (i + BATCH_SIZE < emailsToProcess.length) {
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     }
 
@@ -394,6 +555,112 @@ async function EmailCloner(emailIds, cloningCount, strategy = "smart", customOpt
       success: false,
       message: `Failed to complete cloning process: ${error.message}`,
       error: error,
+    };
+  }
+}
+
+// Optimized version without redundant duplicate checking
+async function cloneAndScheduleEmailOptimized(
+  originalEmailId,
+  dayOffset,
+  hour,
+  minute,
+  newEmailName,
+  scheduledTime,
+  strategy = "smart"
+) {
+  try {
+    console.log(`🔄 Cloning: ${originalEmailId} -> "${newEmailName}"`);
+    console.log(`⏰ Scheduled for: ${scheduledTime.toISOString()} (${hour}:${minute < 10 ? '0' + minute : minute})`);
+
+    // Get original email with custom properties
+    const response = await axios.get(`${BASE_URL}/${originalEmailId}`, {
+      headers: {
+        Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      params: {
+        properties: "name,emailCategory,mdlzBrand"
+      }
+    });
+
+    const originalEmail = response.data;
+
+    // Extract custom properties
+    let emailCategory = originalEmail.emailCategory || originalEmail.properties?.emailCategory || originalEmail.properties?.["Email Category"];
+    let mdlzBrand = originalEmail.mdlzBrand || originalEmail.properties?.mdlzBrand || originalEmail.properties?.["MDLZ Brand"];
+
+    // Clone the email
+    const cloneResponse = await axios.post(
+      `${BASE_URL}/${originalEmailId}/clone`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const clonedEmail = cloneResponse.data;
+    const publishDateTimestamp = scheduledTime.getTime();
+
+    // Build update payload
+    const updateEmailData = {
+      name: newEmailName,
+      mailingIlsListsExcluded: [10469],
+      mailingIlsListsIncluded: [39067],
+      mailingListsExcluded: [6591],
+      mailingListsIncluded: [31189],
+      publishImmediately: false,
+      publishDate: publishDateTimestamp,
+      isGraymailSuppressionEnabled: false,
+    };
+
+    // Add custom properties if they exist
+    if (emailCategory !== null && emailCategory !== undefined) {
+      updateEmailData.emailCategory = emailCategory;
+    }
+    if (mdlzBrand !== null && mdlzBrand !== undefined) {
+      updateEmailData.mdlzBrand = mdlzBrand;
+    }
+
+    // Update the cloned email
+    await axios.put(`${BASE_URL}/${clonedEmail.id}`, updateEmailData, {
+      headers: {
+        Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    // Save to MongoDB
+    try {
+      const clonedEmailRecord = new ClonedEmail({
+        originalEmailId: originalEmailId,
+        clonedEmailId: clonedEmail.id,
+        clonedEmailName: newEmailName,
+        scheduledTime: scheduledTime,
+        cloningStrategy: strategy,
+      });
+      await clonedEmailRecord.save();
+    } catch (saveError) {
+      console.error(`⚠️ MongoDB save error: ${saveError.message}`);
+    }
+
+    console.log(`✅ Successfully cloned: "${newEmailName}" (ID: ${clonedEmail.id})`);
+
+    return {
+      success: true,
+      emailId: clonedEmail.id,
+      emailName: newEmailName,
+      scheduledTime: scheduledTime.toISOString(),
+    };
+  } catch (error) {
+    console.error(`❌ Error cloning email ${originalEmailId}:`, error.response?.data || error.message);
+    return {
+      success: false,
+      error: error.message,
+      details: error.response?.data,
     };
   }
 }

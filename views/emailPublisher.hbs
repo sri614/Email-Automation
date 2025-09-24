@@ -28,6 +28,21 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      outline: none !important;
+    }
+
+    *:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus,
+    textarea:focus {
+      outline: none !important;
+      box-shadow: none !important;
+      border-color: inherit !important;
     }
 
     body {
@@ -85,24 +100,24 @@
     /* Page Header */
     .page-header {
       background: linear-gradient(135deg, var(--light-bg) 0%, #f8f9fa 100%);
-      padding: 20px;
+      padding: 12px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
 
     .page-header h1 {
-      font-size: 2.3rem;
+      font-size: 20px;
       font-weight: 700;
       letter-spacing: 0.5px;
       margin: 0;
       position: relative;
       z-index: 1;
-      color: #067be1;
+      color: #4f46e5;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
     }
 
     .page-header .subtitle {
@@ -115,16 +130,16 @@
     /* Content Area */
     .dashboard-content {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 30px;
-      padding: 15px;
-      min-height: 600px;
+      grid-template-columns: 60fr 40fr;
+      gap: 20px;
+      padding: 12px;
+      min-height: 500px;
       background: #fafbfc;
     }
 
     /* Left Panel */
     .left-panel {
-      padding: 30px;
+      padding: 20px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -132,46 +147,46 @@
 
     /* Right Sidebar */
     .right-sidebar {
-      padding: 30px;
+      padding: 20px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       height: fit-content;
       position: sticky;
-      top: 30px;
+      top: 20px;
     }
 
     /* Section Headers */
     .section-header {
-      margin-bottom: 25px;
+      margin-bottom: 10px;
       position: relative;
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--light-bg);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--light-bg);
     }
 
     .section-header h2 {
-      font-size: 1.3rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: var(--primary-color);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .section-header h2 i {
       color: var(--secondary-color);
-      font-size: 1.1rem;
+      font-size: 0.9rem;
     }
 
     /* Filter Section */
     .filter-section {
-      background: linear-gradient(135deg, #f8f9fa 0%, var(--light-bg) 100%);
-      padding: 30px;
+      background: #eef1f2;
+      padding: 15px;
       border-radius: 12px;
-      margin-bottom: 35px;
-      border: 1px solid var(--border-light);
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       animation: slideDown 0.4s ease-out;
     }
 
@@ -184,31 +199,30 @@
 
     .filter-controls .form-select {
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
       border: 1px solid var(--border-light);
       border-radius: 8px;
-      padding: 10px 15px;
+      padding: 8px 12px;
       transition: all var(--transition-speed);
       background: white;
+      font-size: 0.9rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .filter-controls .form-select:focus {
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
 
     .btn-primary-custom {
       background: var(--secondary-color);
       color: white;
       border: none;
-      padding: 10px 30px;
+      padding: 8px 20px;
       border-radius: 8px;
       font-weight: 500;
       transition: all var(--transition-speed);
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
 
     .btn-primary-custom:hover {
@@ -219,12 +233,12 @@
 
     /* Email List */
     .email-list-container {
-      max-height: 450px;
+      max-height: 350px;
       overflow-y: auto;
-      border: 2px solid var(--light-bg);
+      
       border-radius: 12px;
-      background: #fafbfc;
-      padding: 15px;
+      background: #eef1f2 ;
+      padding: 10px;
     }
 
     .email-list-container::-webkit-scrollbar {
@@ -247,16 +261,17 @@
     }
 
     .email-item {
-      padding: 15px;
-      margin-bottom: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
       border-radius: 8px;
-      background: var(--light-bg);
+      background: white;
       transition: all var(--transition-speed);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       animation: slideIn 0.3s ease-out;
+      font-size: 0.9rem;
     }
 
     .email-item:hover {
@@ -267,6 +282,62 @@
     .email-item.selected {
       background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
       border-left: 3px solid var(--secondary-color);
+    }
+
+    .email-item.published {
+      background: linear-gradient(135deg, #10b98115 0%, #059669 15 100%);
+      border-left: 3px solid #10b981;
+      opacity: 0.7;
+    }
+
+    .email-item.published .email-checkbox {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .email-item.published {
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .email-item.published .republish-toggle {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .email-item.published .email-name {
+      text-decoration: line-through;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .republish-toggle {
+      background: none;
+      border: 1px solid #10b981;
+      color: #10b981;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .republish-toggle:hover {
+      background: #10b981;
+      color: white;
+    }
+
+    .republish-toggle.active {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+    }
+
+    .republish-toggle.active:hover {
+      background: #dc2626;
+      border-color: #dc2626;
     }
 
     .email-checkbox {
@@ -306,30 +377,33 @@
 
     /* Selected Emails Panel */
     .selected-panel {
-      background: var(--light-bg);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 30px;
-      border: 2px solid var(--border-light);
+      background: #eef1f2;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .selected-count {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 15px;
-      padding: 10px;
-      background: var(--light-bg);
-      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      font-size: 0.85rem;
     }
 
     .selected-count span {
       font-weight: 500;
       color: var(--dark-text);
+      font-size: 0.875rem;
     }
 
     .selected-list {
-      max-height: 200px;
+      max-height: 120px;
       overflow-y: auto;
     }
 
@@ -337,11 +411,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px;
-      margin-bottom: 8px;
-      background: var(--hover-bg);
-      border-radius: 6px;
+      padding: 5px 8px;
+      margin-bottom: 3px;
+      background: white;
+      border-radius: 4px;
       animation: slideIn 0.3s ease-out;
+      font-size: 0.8rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .remove-btn {
@@ -351,39 +427,45 @@
       cursor: pointer;
       font-size: 1.2rem;
       transition: transform var(--transition-speed);
+      min-width: 20px;
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      z-index: 10;
+      position: relative;
     }
 
     .remove-btn:hover {
       transform: rotate(90deg);
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 50%;
     }
 
     /* Form Controls */
     .form-group {
-      margin-bottom: 25px;
+      margin-bottom: 15px;
     }
 
     .form-label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       font-weight: 500;
       color: var(--dark-text);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
     }
 
     .form-control-custom {
       width: 100%;
-      padding: 12px 15px;
+      padding: 8px 12px;
       border: 1px solid var(--border-light);
       border-radius: 8px;
       transition: all var(--transition-speed);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .form-control-custom:focus {
-      outline: none;
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
 
     .form-text {
       font-size: 0.875rem;
@@ -394,20 +476,20 @@
     /* Publish Button */
     .btn-publish {
       width: 100%;
-      padding: 15px;
+      padding: 12px;
       background: var(--secondary-color);
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
+      border-radius: 8px;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all var(--transition-speed);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin-top: 30px;
+      gap: 8px;
+      margin-top: 20px;
     }
 
     .btn-publish:hover:not(:disabled) {
@@ -420,14 +502,54 @@
       cursor: not-allowed;
     }
 
-    /* Results Section */
+    /* Results Section - Overlay Style */
+    .results-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
     .results-container {
-      margin-top: 30px;
-      padding: 20px;
       background: white;
       border-radius: 12px;
-      border: 1px solid var(--border-light);
+      padding: 25px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 70vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.4s ease-out;
+      position: relative;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--light-bg);
+    }
+
+    .results-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--light-text);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .results-close:hover {
+      color: var(--accent-color);
     }
 
     .result-item {
@@ -466,38 +588,37 @@
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-bottom: 35px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .stat-card {
-      background: var(--light-bg);
-      padding: 25px 20px;
-      border-radius: 12px;
+      background: #eef1f2;
+      padding: 10px 8px;
+      border-radius: 8px;
       text-align: center;
       transition: all var(--transition-speed);
-      border: 2px solid transparent;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      border-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
     .stat-value {
-      font-size: 2.2rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: var(--primary-color);
-      margin-bottom: 8px;
+      margin-bottom: 2px;
     }
 
     .stat-label {
-      font-size: 0.9rem;
+      font-size: 0.65rem;
       color: var(--light-text);
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.2px;
     }
 
     /* Animations */
@@ -894,11 +1015,6 @@
       transform: rotate(90deg) scale(1.1);
     }
 
-    .form-control-custom:focus,
-    .form-select:focus {
-      transform: scale(1.01);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
 
     .btn-publish {
       position: relative;
@@ -984,8 +1100,104 @@
       }
 
       .dashboard-content {
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 60fr 40fr;
       }
+
+      .email-ids-list {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      }
+    }
+
+    /* Email ID Card Styles */
+    .email-ids-container {
+      min-height: 120px;
+      max-height: 280px;
+      border-radius: 8px;
+      padding: 12px;
+      background: #eef1f2;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow-y: auto;
+    }
+
+    .email-ids-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      min-height: 60px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .email-id-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      border: 1px solid #4f46e5;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #4f46e5;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+      cursor: pointer;
+      min-height: 36px;
+      word-break: break-all;
+    }
+
+    .email-id-card:hover {
+      transform: translateY(-1px);
+      border-color: #6366f1;
+      background: #f8fafc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-id-card:active {
+      transform: scale(0.98);
+    }
+
+    .remove-email-btn {
+      color: #ef4444;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .remove-email-btn:hover {
+      opacity: 1;
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .email-ids-empty {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 0.875rem;
+      padding: 30px 0;
+      text-align: center;
+    }
+
+    .email-ids-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #d1d5db;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     /* Utility Classes */
@@ -1033,7 +1245,7 @@
               <div class="stat-value" id="selectedCount">0</div>
               <div class="stat-label">Selected</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" title="Click to clear published history" style="cursor: pointer;" id="publishedCard">
               <div class="stat-value" id="publishedCount">0</div>
               <div class="stat-label">Published</div>
             </div>
@@ -1065,9 +1277,6 @@
           </div>
 
           <!-- Email List -->
-          <div class="section-header">
-            <h2><i class="bi bi-inbox"></i> Available Emails</h2>
-          </div>
 
           <div class="email-list-container" id="emailList">
             <div class="text-center text-muted" style="padding: 40px;">
@@ -1080,9 +1289,6 @@
         <!-- Right Sidebar -->
         <div class="right-sidebar">
           <!-- Selected Emails -->
-          <div class="section-header">
-            <h2><i class="bi bi-check2-square"></i> Selection</h2>
-          </div>
 
           <div class="selected-panel">
             <div class="selected-count">
@@ -1097,38 +1303,52 @@
           </div>
 
           <!-- Publishing Options -->
-          <div class="section-header">
-            <h2><i class="bi bi-gear"></i> Publishing Options</h2>
-          </div>
 
           <div class="form-group">
             <label class="form-label" for="emailIdsInput">
               <i class="bi bi-list-ul"></i> Email IDs
             </label>
             <input type="text" class="form-control-custom" id="emailIdsInput"
-              placeholder="Auto-populated from selection">
-            <small class="form-text">IDs are automatically added when you select emails</small>
+              placeholder="Enter email ID and press Enter to add..." style="background-color: #f8f9fa; cursor: text;margin-bottom: 12px;">
+
+            <!-- Email IDs Display Area -->
+            <div class="email-ids-container" id="emailIdsContainer">
+              <div class="email-ids-list" id="emailIdsList">
+                <div class="email-ids-empty" id="emptyState">
+                  <i class="bi bi-inbox" style="margin-right: 8px;"></i>
+                  No email IDs added yet. Type an ID and press Enter to add.
+                </div>
+              </div>
+              <div class="email-ids-footer">
+                <div style="font-size: 0.875rem; font-weight: 500; color: #4f46e5;">
+                  <i class="bi bi-envelope" style="margin-right: 4px;"></i>
+                  <span id="emailCount">0</span> email IDs added
+                </div>
+                <button type="button" id="clearAllBtn" style="display: none; color: #ef4444; background: none; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer;">
+                  <i class="bi bi-trash" style="margin-right: 4px;"></i>
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            <small class="form-text">Add IDs manually or they will be auto-populated from selection</small>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="scheduleTime">
-              <i class="bi bi-clock"></i> Schedule Time (Optional)
-            </label>
-            <input type="datetime-local" class="form-control-custom" id="scheduleTime">
-            <small class="form-text">Leave empty to publish immediately</small>
-          </div>
 
           <!-- Publish Button -->
           <button class="btn-publish" id="publishBtn">
             <i class="bi bi-send"></i> Publish Campaign
           </button>
 
-          <!-- Results -->
-          <div class="results-container d-none" id="resultsSection">
-            <div class="section-header">
-              <h2><i class="bi bi-check-circle"></i> Results</h2>
+          <!-- Results Overlay -->
+          <div class="results-overlay d-none" id="resultsOverlay">
+            <div class="results-container">
+              <div class="results-header">
+                <h3 style="margin: 0; font-size: 1.2rem; color: var(--primary-color);"><i class="bi bi-check-circle"></i> Publishing Results</h3>
+                <button class="results-close" id="closeResults">&times;</button>
+              </div>
+              <div id="resultsList"></div>
             </div>
-            <div id="resultsList"></div>
           </div>
         </div>
       </div>
@@ -1224,11 +1444,166 @@
     // Store the current email data
     let currentEmails = [];
     let selectedEmailIds = new Set();
+    let manualEmailIds = [];
+    let publishedEmailIds = new Set(); // Track published emails
+    let currentFilter = 'today'; // Track current filter
+
+    // Function to get published count for current filter
+    function getFilterSpecificPublishedCount() {
+      if (currentEmails.length === 0) return 0;
+
+      // Count how many emails in current list are published
+      return currentEmails.filter(email =>
+        publishedEmailIds.has(email.clonedEmailId)
+      ).length;
+    }
+
+    // Function to update all counts
+    function updateCounts() {
+      document.getElementById('totalEmails').textContent = currentEmails.length;
+      document.getElementById('selectedCount').textContent = selectedEmailIds.size;
+
+      const publishedCount = getFilterSpecificPublishedCount();
+      document.getElementById('publishedCount').textContent = publishedCount;
+
+      // Update the label to show it's filter-specific
+      const publishedLabel = document.querySelector('#publishedCard .stat-label');
+      if (publishedLabel) {
+        const filterText = currentFilter.toUpperCase();
+        publishedLabel.textContent = `Published (${filterText})`;
+      }
+    }
+
+    // Email ID management functions
+    function updateEmailIdsDisplay() {
+      const emailIdsList = document.getElementById('emailIdsList');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+      const emailCount = document.getElementById('emailCount');
+
+      // Check if elements exist
+      if (!emailIdsList || !clearAllBtn || !emailCount) {
+        console.warn('Required elements not found for updateEmailIdsDisplay');
+        return;
+      }
+
+      emailIdsList.innerHTML = '';
+
+      // Combine manual IDs and selected IDs for display
+      const allIds = [...manualEmailIds, ...Array.from(selectedEmailIds)];
+
+      if (allIds.length === 0) {
+        // Always create empty state when no IDs
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'email-ids-empty';
+        emptyDiv.innerHTML = `
+          <i class="bi bi-inbox" style="margin-right: 8px;"></i>
+          No email IDs added yet. Type an ID and press Enter to add.
+        `;
+        emailIdsList.appendChild(emptyDiv);
+        clearAllBtn.style.display = 'none';
+      } else {
+        clearAllBtn.style.display = 'block';
+
+        // Display manual IDs
+        manualEmailIds.forEach((emailId, index) => {
+          const card = document.createElement('div');
+          card.className = 'email-id-card';
+          card.innerHTML = `
+            <span>${emailId}</span>
+            <button type="button" class="remove-email-btn" data-index="${index}" data-type="manual">
+              <i class="bi bi-x"></i>
+            </button>
+          `;
+          emailIdsList.appendChild(card);
+        });
+
+        // Display selected IDs
+        Array.from(selectedEmailIds).forEach((emailId) => {
+          const card = document.createElement('div');
+          card.className = 'email-id-card';
+          card.style.borderColor = '#10b981'; // Green border for selected emails
+          card.style.color = '#10b981';
+          card.innerHTML = `
+            <span>${emailId}</span>
+            <button type="button" class="remove-email-btn" data-id="${emailId}" data-type="selected">
+              <i class="bi bi-x"></i>
+            </button>
+          `;
+          emailIdsList.appendChild(card);
+        });
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.remove-email-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            if (type === 'manual') {
+              const index = parseInt(this.getAttribute('data-index'));
+              manualEmailIds.splice(index, 1);
+            } else if (type === 'selected') {
+              const emailId = this.getAttribute('data-id');
+              selectedEmailIds.delete(emailId);
+              // Also uncheck the checkbox in the email list
+              const checkbox = document.querySelector(`.email-item input[value="${emailId}"]`);
+              if (checkbox) {
+                checkbox.checked = false;
+              }
+              updateSelectedEmails();
+              updateSelectAllCheckbox();
+            }
+            updateEmailIdsDisplay();
+            updateEmailIdsInput();
+          });
+        });
+      }
+
+      emailCount.textContent = allIds.length;
+      updateEmailIdsInput();
+    }
+
+    function updateEmailIdsInput() {
+      const emailIdsInput = document.querySelector('#emailIdsInput');
+      if (!emailIdsInput) {
+        console.warn('Email IDs input field not found');
+        return;
+      }
+      // Don't update the input field - keep it empty for new entries
+      // The actual IDs are tracked in manualEmailIds and selectedEmailIds arrays
+      emailIdsInput.value = '';
+
+      // Log for debugging
+      const allIds = [...manualEmailIds, ...Array.from(selectedEmailIds)];
+      console.log('Current email IDs:', allIds);
+    }
+
+    function addEmailId(emailId) {
+      const trimmedId = emailId.trim();
+      if (trimmedId) {
+        if (manualEmailIds.includes(trimmedId) || selectedEmailIds.has(trimmedId)) {
+          // Show duplicate warning
+          showDuplicateWarning(trimmedId);
+          return;
+        }
+        manualEmailIds.push(trimmedId);
+        updateEmailIdsDisplay();
+      }
+    }
+
+    function showDuplicateWarning(emailId) {
+      const emailIdsInput = document.getElementById('emailIdsInput');
+      emailIdsInput.style.borderColor = '#ef4444';
+      emailIdsInput.style.backgroundColor = '#fef2f2';
+      emailIdsInput.placeholder = `"${emailId}" already exists!`;
+
+      setTimeout(() => {
+        emailIdsInput.style.borderColor = '';
+        emailIdsInput.style.backgroundColor = '';
+        emailIdsInput.placeholder = 'Enter email ID and press Enter to add...';
+      }, 2000);
+    }
 
     // Function to update the selected emails display
     function updateSelectedEmails() {
       const selectedEmailsContainer = document.getElementById('selectedEmailsList');
-      const emailIdsInput = document.getElementById('emailIdsInput');
       const selectedBadge = document.getElementById('selectedBadge');
       const selectedCount = document.getElementById('selectedCount');
 
@@ -1237,7 +1612,6 @@
 
       if (selectedEmailIds.size === 0) {
         selectedEmailsContainer.innerHTML = '<div class="text-center text-muted">No emails selected</div>';
-        emailIdsInput.value = '';
         selectedBadge.textContent = '0';
         selectedCount.textContent = '0';
         return;
@@ -1255,12 +1629,10 @@
         selectedEmailsContainer.appendChild(emailDiv);
       });
 
-      // Update the input field with comma-separated IDs
-      emailIdsInput.value = Array.from(selectedEmailIds).join(', ');
-
       // Update badge and count
       selectedBadge.textContent = selectedEmailIds.size;
       selectedCount.textContent = selectedEmailIds.size;
+      document.getElementById('selectedCount').textContent = selectedEmailIds.size;
 
       // Add event listeners to remove buttons
       document.querySelectorAll('.remove-btn').forEach(btn => {
@@ -1276,6 +1648,8 @@
 
           updateSelectedEmails();
           updateSelectAllCheckbox();
+          updateEmailIdsDisplay(); // Update the cards display
+          updateEmailIdsInput(); // Update the input field
         });
       });
     }
@@ -1285,7 +1659,12 @@
       const selectAllCheckbox = document.getElementById('selectAll');
       const emailCheckboxes = document.querySelectorAll('.email-item input[type="checkbox"]');
 
-      if (emailCheckboxes.length === 0) {
+      // Only consider non-disabled and non-published checkboxes
+      const selectableCheckboxes = Array.from(emailCheckboxes).filter(checkbox =>
+        !checkbox.disabled && !publishedEmailIds.has(checkbox.value)
+      );
+
+      if (selectableCheckboxes.length === 0) {
         selectAllCheckbox.checked = false;
         selectAllCheckbox.disabled = true;
         return;
@@ -1293,8 +1672,8 @@
 
       selectAllCheckbox.disabled = false;
 
-      const allChecked = Array.from(emailCheckboxes).every(checkbox => checkbox.checked);
-      const someChecked = Array.from(emailCheckboxes).some(checkbox => checkbox.checked);
+      const allChecked = selectableCheckboxes.every(checkbox => checkbox.checked);
+      const someChecked = selectableCheckboxes.some(checkbox => checkbox.checked);
 
       selectAllCheckbox.checked = allChecked;
       selectAllCheckbox.indeterminate = someChecked && !allChecked;
@@ -1308,6 +1687,7 @@
       emailList.innerHTML = '<div class="text-center text-muted">Loading emails...</div>';
 
       const filter = document.getElementById('dateFilter').value;
+      currentFilter = filter; // Update current filter
 
       // Calculate the target date string (YYYY-MM-DD) for the filter
       const today = new Date();
@@ -1367,14 +1747,22 @@
           emailList.innerHTML = '';
           currentEmails.forEach(email => {
             const item = document.createElement('div');
-            item.className = 'email-item';
+            const isPublished = publishedEmailIds.has(email.clonedEmailId);
+            item.className = `email-item ${isPublished ? 'published' : ''}`;
             item.innerHTML = `
-              <input type="checkbox" class="email-checkbox" value="${email.clonedEmailId}">
+              <input type="checkbox" class="email-checkbox" value="${email.clonedEmailId}" ${isPublished ? 'disabled' : ''}>
               <div class="email-details">
                 <div class="email-name">${email.clonedEmailName || 'Unnamed Email'}</div>
                 <div class="email-id">ID: ${email.clonedEmailId}</div>
               </div>
-              <span class="email-badge">${filter}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${isPublished ? `
+                  <button class="republish-toggle" data-email-id="${email.clonedEmailId}">
+                    <i class="bi bi-arrow-clockwise"></i> Republish
+                  </button>
+                ` : ''}
+                <span class="email-badge">${filter.toUpperCase()}</span>
+              </div>
             `;
             emailList.appendChild(item);
           });
@@ -1382,6 +1770,12 @@
           // Add event listeners to checkboxes
           document.querySelectorAll('.email-item input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function () {
+              // Don't allow changes if checkbox is disabled or email is published
+              if (this.disabled || publishedEmailIds.has(this.value)) {
+                this.checked = false;
+                return;
+              }
+
               if (this.checked) {
                 selectedEmailIds.add(this.value);
               } else {
@@ -1389,10 +1783,54 @@
               }
               updateSelectedEmails();
               updateSelectAllCheckbox();
+              updateEmailIdsDisplay();
+              updateEmailIdsInput();
+              updateCounts();
+            });
+
+            // Also add click event to prevent any interaction
+            checkbox.addEventListener('click', function(e) {
+              if (this.disabled || publishedEmailIds.has(this.value)) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.checked = false;
+                return false;
+              }
             });
           });
 
-          totalEmails.textContent = currentEmails.length;
+          // Add event listeners to republish toggles
+          document.querySelectorAll('.republish-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const emailId = this.getAttribute('data-email-id');
+              const emailItem = this.closest('.email-item');
+              const checkbox = emailItem.querySelector('.email-checkbox');
+
+              if (this.classList.contains('active')) {
+                // Cancel republish - make it published again
+                this.classList.remove('active');
+                this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Republish';
+                emailItem.classList.add('published');
+                checkbox.disabled = true;
+                selectedEmailIds.delete(emailId);
+              } else {
+                // Enable republish - make it available for selection
+                this.classList.add('active');
+                this.innerHTML = '<i class="bi bi-x"></i> Cancel';
+                emailItem.classList.remove('published');
+                checkbox.disabled = false;
+              }
+
+              updateSelectedEmails();
+              updateSelectAllCheckbox();
+              updateEmailIdsDisplay();
+              updateEmailIdsInput();
+              updateCounts();
+            });
+          });
+
+          updateCounts();
         } else {
           emailList.innerHTML = `
             <div class="text-center text-muted" style="padding: 40px;">
@@ -1400,7 +1838,7 @@
               <p class="mt-3">No emails found for ${targetDateStr}</p>
             </div>
           `;
-          totalEmails.textContent = '0';
+          updateCounts();
         }
       } catch (e) {
         console.error(e);
@@ -1420,33 +1858,37 @@
       const checkboxes = document.querySelectorAll('.email-item input[type="checkbox"]');
 
       checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
+        // Only handle non-disabled checkboxes and non-published emails
+        if (!checkbox.disabled && !publishedEmailIds.has(checkbox.value)) {
+          checkbox.checked = this.checked;
 
-        if (this.checked) {
-          selectedEmailIds.add(checkbox.value);
-        } else {
-          selectedEmailIds.delete(checkbox.value);
+          if (this.checked) {
+            selectedEmailIds.add(checkbox.value);
+          } else {
+            selectedEmailIds.delete(checkbox.value);
+          }
         }
       });
 
       updateSelectedEmails();
+      updateEmailIdsDisplay();
+      updateEmailIdsInput();
     });
 
     // Publish emails
     document.getElementById('publishBtn').addEventListener('click', async function () {
-      const emailIdsInput = document.getElementById('emailIdsInput').value;
-      const scheduleTimeInput = document.getElementById('scheduleTime');
-      const scheduleTime = scheduleTimeInput.value || null;
+      const scheduleTime = null; // Always publish immediately
       const resultsSection = document.getElementById('resultsSection');
       const resultsList = document.getElementById('resultsList');
       const publishedCount = document.getElementById('publishedCount');
 
       // Clear previous results
       resultsList.innerHTML = '';
-      resultsSection.classList.add('d-none');
+      const resultsOverlay = document.getElementById('resultsOverlay');
+      resultsOverlay.classList.add('d-none');
 
-      // Parse email IDs
-      const emailIds = emailIdsInput.split(',').map(id => id.trim()).filter(id => id);
+      // Get email IDs from both manual and selected arrays
+      const emailIds = [...manualEmailIds, ...Array.from(selectedEmailIds)];
 
       if (emailIds.length === 0) {
         alert('Please enter at least one valid email ID');
@@ -1459,8 +1901,9 @@
       publishBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
 
       try {
-        // Show results section
-        resultsSection.classList.remove('d-none');
+        // Show results overlay
+        resultsOverlay.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
 
         // Process each email ID
         let successCount = 0;
@@ -1479,19 +1922,78 @@
               },
               body: JSON.stringify({
                 emailId,
-                scheduleTime: scheduleTime || null
+                scheduleTime: null
               })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-              const message = scheduleTime
-                ? `Scheduled for ${new Date(scheduleTime).toLocaleString()}`
-                : 'Published successfully';
+              const message = 'Published successfully';
 
               resultItem.className = 'result-item success';
               resultItem.innerHTML = `<i class="bi bi-check-circle"></i> <strong>Email ID ${emailId}:</strong> ${message}`;
+
+              // Mark email as published
+              publishedEmailIds.add(emailId);
+
+              // Remove from selections if it was selected
+              selectedEmailIds.delete(emailId);
+
+              // Update the email item in the DOM
+              const emailItem = document.querySelector(`.email-item input[value="${emailId}"]`)?.closest('.email-item');
+              if (emailItem) {
+                emailItem.classList.add('published');
+                const checkbox = emailItem.querySelector('.email-checkbox');
+                if (checkbox) {
+                  checkbox.disabled = true;
+                  checkbox.checked = false;
+                }
+
+                // Add republish button if not already present
+                const existingToggle = emailItem.querySelector('.republish-toggle');
+                if (!existingToggle) {
+                  const badgeContainer = emailItem.querySelector('div[style*="display: flex"]');
+                  if (badgeContainer) {
+                    badgeContainer.innerHTML = `
+                      <button class="republish-toggle" data-email-id="${emailId}">
+                        <i class="bi bi-arrow-clockwise"></i> Republish
+                      </button>
+                      ${badgeContainer.innerHTML}
+                    `;
+
+                    // Add event listener to the new toggle
+                    const newToggle = emailItem.querySelector('.republish-toggle');
+                    newToggle.addEventListener('click', function(e) {
+                      e.stopPropagation();
+                      const emailId = this.getAttribute('data-email-id');
+                      const emailItem = this.closest('.email-item');
+                      const checkbox = emailItem.querySelector('.email-checkbox');
+
+                      if (this.classList.contains('active')) {
+                        // Cancel republish - make it published again
+                        this.classList.remove('active');
+                        this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Republish';
+                        emailItem.classList.add('published');
+                        checkbox.disabled = true;
+                        selectedEmailIds.delete(emailId);
+                      } else {
+                        // Enable republish - make it available for selection
+                        this.classList.add('active');
+                        this.innerHTML = '<i class="bi bi-x"></i> Cancel';
+                        emailItem.classList.remove('published');
+                        checkbox.disabled = false;
+                      }
+
+                      updateSelectedEmails();
+                      updateSelectAllCheckbox();
+                      updateEmailIdsDisplay();
+                      updateEmailIdsInput();
+                    });
+                  }
+                }
+              }
+
               successCount++;
             } else {
               resultItem.className = 'result-item error';
@@ -1525,18 +2027,28 @@
         // Re-enable button
         publishBtn.disabled = false;
         publishBtn.innerHTML = '<i class="bi bi-send"></i> Publish Campaign';
+
+        // Update UI after publishing
+        updateSelectedEmails();
+        updateSelectAllCheckbox();
+        updateEmailIdsDisplay();
+        updateEmailIdsInput();
+        updateCounts();
+
+        // Save published state to localStorage
+        localStorage.setItem('publishedEmailIds', JSON.stringify(Array.from(publishedEmailIds)));
       }
     });
 
-    // Initialize datetime-local input with current time
-    document.getElementById('scheduleTime').value = new Date().toISOString().slice(0, 16);
 
     // Add event listener for individual email item clicks (not just checkbox)
     document.addEventListener('click', function (e) {
       const emailItem = e.target.closest('.email-item');
-      if (emailItem && !e.target.matches('input[type="checkbox"]')) {
+      if (emailItem && !e.target.matches('input[type="checkbox"]') && !e.target.closest('.republish-toggle')) {
         const checkbox = emailItem.querySelector('input[type="checkbox"]');
-        if (checkbox) {
+
+        // Don't allow clicking on published emails
+        if (checkbox && !checkbox.disabled && !publishedEmailIds.has(checkbox.value)) {
           checkbox.checked = !checkbox.checked;
           if (checkbox.checked) {
             selectedEmailIds.add(checkbox.value);
@@ -1545,31 +2057,137 @@
           }
           updateSelectedEmails();
           updateSelectAllCheckbox();
+          updateEmailIdsDisplay();
         }
       }
     });
 
-    // Auto-scroll to results when publishing
-    const observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          const resultsSection = document.getElementById('resultsSection');
-          if (!resultsSection.classList.contains('d-none')) {
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
+    // Close results overlay
+    document.addEventListener('click', function(e) {
+      if (e.target.id === 'closeResults' || e.target.id === 'resultsOverlay') {
+        const resultsOverlay = document.getElementById('resultsOverlay');
+        resultsOverlay.classList.add('d-none');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // Close overlay on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const resultsOverlay = document.getElementById('resultsOverlay');
+        if (!resultsOverlay.classList.contains('d-none')) {
+          resultsOverlay.classList.add('d-none');
+          document.body.style.overflow = 'auto';
+        }
+      }
+    });
+
+    // Initialize published emails from localStorage
+    function initializePublishedEmails() {
+      const stored = localStorage.getItem('publishedEmailIds');
+      if (stored) {
+        try {
+          const publishedArray = JSON.parse(stored);
+          publishedEmailIds = new Set(publishedArray);
+        } catch (error) {
+          console.error('Error loading published emails from localStorage:', error);
+          publishedEmailIds = new Set();
+        }
+      }
+    }
+
+    // Add event listeners for manual email ID input
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize published emails
+      initializePublishedEmails();
+
+      const emailIdsInput = document.getElementById('emailIdsInput');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+
+      // Handle Enter key press for adding email IDs
+      emailIdsInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addEmailId(this.value);
+          this.value = '';
+        }
+      });
+
+      // Handle comma-separated input
+      emailIdsInput.addEventListener('input', function() {
+        const value = this.value;
+        if (value.includes(',')) {
+          const ids = value.split(',');
+          const lastId = ids.pop(); // Keep the last part in input
+          ids.forEach(id => addEmailId(id));
+          this.value = lastId;
+        }
+      });
+
+      // Clear all email IDs (both manual and selected)
+      clearAllBtn.addEventListener('click', function() {
+        // Clear manual IDs
+        manualEmailIds = [];
+
+        // Clear selected IDs and uncheck all checkboxes
+        selectedEmailIds.forEach(emailId => {
+          const checkbox = document.querySelector(`.email-item input[value="${emailId}"]`);
+          if (checkbox) {
+            checkbox.checked = false;
+          }
+        });
+        selectedEmailIds.clear();
+
+        // Update all displays
+        updateEmailIdsDisplay();
+        updateSelectedEmails();
+        updateSelectAllCheckbox();
+      });
+
+      // Clear published history when clicking on published count
+      document.getElementById('publishedCard').addEventListener('click', function() {
+        if (publishedEmailIds.size > 0) {
+          if (confirm('Are you sure you want to clear all published email history? This will make all published emails available for republishing.')) {
+            publishedEmailIds.clear();
+            localStorage.removeItem('publishedEmailIds');
+
+            // Update all email items to remove published state
+            document.querySelectorAll('.email-item.published').forEach(item => {
+              item.classList.remove('published');
+              const checkbox = item.querySelector('.email-checkbox');
+              if (checkbox) {
+                checkbox.disabled = false;
+              }
+              const republishToggle = item.querySelector('.republish-toggle');
+              if (republishToggle) {
+                republishToggle.remove();
+              }
+            });
+
+            updateSelectAllCheckbox();
+            updateCounts();
           }
         }
       });
-    });
 
-    observer.observe(document.getElementById('resultsSection'), {
-      attributes: true,
-      attributeFilter: ['class']
-    });
+      // Initialize display only after DOM is ready
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        updateEmailIdsDisplay();
+        updateCounts();
+      } else {
+        window.addEventListener('load', function() {
+          updateEmailIdsDisplay();
+          updateCounts();
+        });
+      }
 
-    // Initialize the page
-    document.addEventListener('DOMContentLoaded', function () {
       // Load today's emails by default
-      document.getElementById('loadEmailsBtn').click();
+      setTimeout(() => {
+        const loadBtn = document.getElementById('loadEmailsBtn');
+        if (loadBtn) {
+          loadBtn.click();
+        }
+      }, 100);
 
       // Add some sample results for demonstration
       setTimeout(() => {
