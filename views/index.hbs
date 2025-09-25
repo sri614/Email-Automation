@@ -656,19 +656,23 @@
             const dateElement = card.querySelector('.js-date');
             const editBtn = card.querySelector('.edit-btn');
 
+            // Ensure we're using the correct ISO format for all operations
+            const dateObj = new Date(newDate);
+            const isoDateString = dateObj.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
             // Update visual display immediately with consistent formatting
             if (dateElement) {
-              dateElement.dataset.iso = newDate;
-              const date = new Date(newDate);
-              const day = date.getDate();
-              const month = date.toLocaleString('en-US', { month: 'short' });
-              const year = date.getFullYear();
+              dateElement.dataset.iso = isoDateString;
+
+              const day = dateObj.getDate();
+              const month = dateObj.toLocaleString('en-US', { month: 'short' });
+              const year = dateObj.getFullYear();
               dateElement.textContent = `${day} ${month} ${year}`;
             }
 
-            // Also update the edit button's data-date attribute
+            // Also update the edit button's data-date attribute with consistent format
             if (editBtn) {
-              editBtn.dataset.date = newDate;
+              editBtn.dataset.date = isoDateString;
             }
 
             // Prepare update request with proper error handling
@@ -676,7 +680,7 @@
               fetch(`/email/${cardId}/update-date`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ date: newDate })
+                body: JSON.stringify({ date: isoDateString })
               }).then(response => {
                 if (!response.ok) {
                   if (response.status === 401) {
@@ -725,7 +729,19 @@
 
     // Format dates with consistent formatting
     document.querySelectorAll(".js-date").forEach(el => {
-      const date = new Date(el.dataset.iso);
+      const isoValue = el.dataset.iso;
+
+      if (!isoValue || isoValue === 'undefined' || isoValue === 'null') {
+        el.textContent = 'No date';
+        return;
+      }
+
+      const date = new Date(isoValue);
+      if (isNaN(date.getTime())) {
+        el.textContent = 'Invalid date';
+        return;
+      }
+
       const day = date.getDate();
       const month = date.toLocaleString('en-US', { month: 'short' });
       const year = date.getFullYear();

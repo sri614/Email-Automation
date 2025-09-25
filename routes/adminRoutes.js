@@ -111,7 +111,7 @@ router.put("/email/:id/update-date", ensureAuthenticated, async (req, res) => {
 
     await Segmentation.findByIdAndUpdate(
       id,
-      { date: new Date(date) },
+      { date: date }, // Store as string, not Date object
       { new: true }
     )
       .then((updatedEmail) => {
