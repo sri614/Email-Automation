@@ -123,7 +123,8 @@
           <button class="edit-btn" title="Edit" data-id="{{this._id}}" data-campaign="{{this.campaign}}"
             data-brand="{{this.brand}}" data-count="{{this.count}}" data-primary-list-id="{{this.primaryListId}}"
             data-secondary-list-id="{{this.secondaryListId}}" data-send-contact-list-id="{{this.sendContactListId}}"
-            data-domain="{{this.domain}}" data-date="{{this.date}}">
+            data-domain="{{this.domain}}" data-date="{{this.date}}"
+            data-last-marketing-email-sent-brand="{{this.lastMarketingEmailSentBrand}}">
             <img src="/assets/edit-svgrepo-com.svg" width="16" height="16">
           </button>
           <form action="/email/{{this._id}}?_method=DELETE" method="post" style="display: inline;">
@@ -179,6 +180,11 @@
 
       <label for="date">Date:</label>
       <input type="date" id="date" name="date" required />
+
+      <label for="lastMarketingEmailSentBrand">Last Marketing Email sent Brand:</label>
+      <select id="lastMarketingEmailSentBrand" name="lastMarketingEmailSentBrand" required>
+        <option value="" disabled selected>Loading brands...</option>
+      </select>
 
       <button id="form-btn" type="submit">Submit</button>
     </form>
@@ -788,9 +794,48 @@
     const sendContactListIdInput = document.getElementById("sendContactListId");
     const domainInput = document.getElementById("domain");
     const dateInput = document.getElementById("date");
+    const lastMarketingEmailSentBrandInput = document.getElementById("lastMarketingEmailSentBrand");
+
+    // Fetch HubSpot brand options
+    async function loadBrandOptions() {
+      try {
+        const response = await fetch('/api/hubspot-brand-options');
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            console.warn('Authentication required for brand options');
+            lastMarketingEmailSentBrandInput.innerHTML = '<option value="" disabled selected>Please login to load brands</option>';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.options) {
+          lastMarketingEmailSentBrandInput.innerHTML = '<option value="" disabled selected>Select a brand</option>';
+          data.options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.label;
+            lastMarketingEmailSentBrandInput.appendChild(optionElement);
+          });
+        } else {
+          lastMarketingEmailSentBrandInput.innerHTML = '<option value="" disabled selected>Failed to load brands</option>';
+        }
+      } catch (error) {
+        console.error('Error loading brand options:', error);
+        lastMarketingEmailSentBrandInput.innerHTML = '<option value="" disabled selected>Error loading brands</option>';
+      }
+    }
+
+    // Load brand options when the modal is opened
+    document.getElementById("openFormBtn").addEventListener("click", () => {
+      loadBrandOptions();
+    });
 
     document.querySelectorAll(".edit-btn").forEach(button => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
         form.action = `/email/${button.dataset.id}/edit?_method=PUT`;
         formBtn.textContent = "Update";
         campaignInput.value = button.dataset.campaign;
@@ -801,6 +846,13 @@
         sendContactListIdInput.value = button.dataset.sendContactListId;
         domainInput.value = button.dataset.domain;
         dateInput.value = button.dataset.date;
+
+        // Load brand options and set the value
+        await loadBrandOptions();
+        if (button.dataset.lastMarketingEmailSentBrand) {
+          lastMarketingEmailSentBrandInput.value = button.dataset.lastMarketingEmailSentBrand;
+        }
+
         popupForm.style.display = "block";
       });
     });

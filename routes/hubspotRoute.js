@@ -143,20 +143,21 @@ const addContactsToList = async (listId, contacts) => {
   }
 };
 
-const updateRecentDate = async (contactIds, dateValue) => {
+const updateContactProperties = async (contactIds, dateValue, brandValue) => {
   const epochMidnight = new Date(dateValue);
   epochMidnight.setUTCHours(0, 0, 0, 0);
   const epochTime = epochMidnight.getTime().toString();
 
   const chunks = chunkArray(contactIds, 100);
-  console.log(`🕓 Updating recent_marketing_email_sent_date for ${contactIds.length} contacts`);
+  console.log(`🕓 Updating properties for ${contactIds.length} contacts`);
 
   for (const chunk of chunks) {
     const payload = {
       inputs: chunk.map(contactId => ({
         id: contactId.toString(),
         properties: {
-          recent_marketing_email_sent_date: epochTime
+          recent_marketing_email_sent_date: epochTime,
+          last_marketing_email_sent_brand: brandValue
         }
       }))
     };
@@ -178,7 +179,7 @@ const updateRecentDate = async (contactIds, dateValue) => {
 };
 
 const processSingleCampaign = async (config, daysFilter, modeFilter, usedContactsSet) => {
-  const { brand, campaign, primaryListId, secondaryListId, count, domain, date, sendContactListId } = config;
+  const { brand, campaign, primaryListId, secondaryListId, count, domain, date, sendContactListId, lastMarketingEmailSentBrand } = config;
 
   console.log(`\n🚀 Starting campaign: ${campaign} | Brand: ${brand} | Domain: ${domain}`);
   
@@ -218,7 +219,7 @@ const processSingleCampaign = async (config, daysFilter, modeFilter, usedContact
 
   if (selectedContacts.length) {
     await addContactsToList(newList.listId, selectedContacts);
-    await updateRecentDate(selectedContacts, date);
+    await updateContactProperties(selectedContacts, date, lastMarketingEmailSentBrand);
   }
 
   const createdList = await CreatedList.create({
@@ -486,6 +487,33 @@ function formatDateForDisplay(date) {
   
   return `${day} ${month} ${year} ${hours}:${minutes}${ampm}`;
 }
+
+// Fetch HubSpot property options for last_marketing_email_sent_brand
+router.get('/hubspot-brand-options', ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await axios.get(
+      'https://api.hubapi.com/crm/v3/properties/contacts/last_marketing_email_sent_brand',
+      { headers: hubspotHeaders }
+    );
+
+    const options = response.data.options || [];
+    const formattedOptions = options.map(opt => ({
+      label: opt.label,
+      value: opt.value
+    }));
+
+    res.json({
+      success: true,
+      options: formattedOptions
+    });
+  } catch (error) {
+    console.error('Error fetching HubSpot brand options:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      success: false,
+      error: 'Failed to fetch brand options from HubSpot'
+    });
+  }
+});
 
 // Include a HubSpot list in an email
 router.post('/include-list-in-email', ensureAuthenticated, async (req, res) => {
