@@ -76,38 +76,71 @@ const getContactsFromList = async (listId, maxCount = Infinity) => {
   let allContacts = [];
   let hasMore = true;
   let offset = 0;
-  let retryCount = 0;
+  let consecutiveErrors = 0;
+  let totalAttempts = 0;
 
-  while (hasMore && retryCount < MAX_RETRIES && allContacts.length < maxCount) {
+  console.log(`📥 Starting to fetch contacts from list ${listId} (max: ${maxCount})`);
+
+  while (hasMore && allContacts.length < maxCount) {
     try {
       const countToFetch = Math.min(RETRIEVAL_BATCH_SIZE, maxCount - allContacts.length);
+      totalAttempts++;
+
       const res = await axios.get(
         `https://api.hubapi.com/contacts/v1/lists/${listId}/contacts/all`,
         {
           headers: hubspotHeaders,
-          params: { count: countToFetch, vidOffset: offset }
+          params: { count: countToFetch, vidOffset: offset },
+          timeout: 30000 // 30 second timeout
         }
       );
 
       const contacts = res.data.contacts || [];
-      allContacts.push(...contacts.map(c => c.vid));
+      const newContacts = contacts.map(c => c.vid);
+      allContacts.push(...newContacts);
+
+      console.log(`  ✓ Batch ${totalAttempts}: fetched ${newContacts.length} contacts (total: ${allContacts.length})`);
+
       hasMore = res.data['has-more'] && allContacts.length < maxCount;
       offset = res.data['vid-offset'];
-      retryCount = 0;
+      consecutiveErrors = 0; // Reset error counter on success
 
       if (allContacts.length >= maxCount) {
         allContacts = allContacts.slice(0, maxCount);
         break;
       }
+
+      // Small delay between successful requests to avoid rate limiting
+      if (hasMore) {
+        await new Promise(r => setTimeout(r, 200));
+      }
     } catch (error) {
-      retryCount++;
-      console.error(`⚠️ Error fetching contacts from list ${listId}, retry ${retryCount}:`, error.message);
-      if (retryCount < MAX_RETRIES) await new Promise(r => setTimeout(r, 1000 * retryCount));
-      else hasMore = false;
+      consecutiveErrors++;
+      console.error(`⚠️ Error fetching batch ${totalAttempts + 1} from list ${listId} (attempt ${consecutiveErrors}/${MAX_RETRIES}):`,
+        error.response?.status || error.message);
+
+      // If we have some contacts and hit an error, return what we have
+      if (allContacts.length > 0 && consecutiveErrors >= MAX_RETRIES) {
+        console.warn(`⚠️ Returning partial results: ${allContacts.length} contacts retrieved before error`);
+        break;
+      }
+
+      // If no contacts yet and max retries reached, throw error
+      if (allContacts.length === 0 && consecutiveErrors >= MAX_RETRIES) {
+        console.error(`❌ Failed to fetch any contacts from list ${listId} after ${MAX_RETRIES} attempts`);
+        throw new Error(`Unable to fetch contacts from list ${listId}: ${error.message}`);
+      }
+
+      // Exponential backoff for retries
+      const delay = Math.min(1000 * Math.pow(2, consecutiveErrors - 1), 10000);
+      console.log(`  ⏳ Waiting ${delay}ms before retry...`);
+      await new Promise(r => setTimeout(r, delay));
     }
   }
 
-  return [...new Set(allContacts)];
+  const uniqueContacts = [...new Set(allContacts)];
+  console.log(`✅ Fetched ${uniqueContacts.length} unique contacts from list ${listId}`);
+  return uniqueContacts;
 };
 
 const createHubSpotList = async (name) => {
@@ -126,21 +159,55 @@ const createHubSpotList = async (name) => {
 };
 
 const addContactsToList = async (listId, contacts) => {
+  if (!contacts || contacts.length === 0) {
+    console.log(`  ⚠️ No contacts to add to list ${listId}`);
+    return;
+  }
+
   const chunks = progressiveChunks(contacts);
-  for (const chunk of chunks) {
-    try {
-      await axios.post(
-        `https://api.hubapi.com/contacts/v1/lists/${listId}/add`,
-        { vids: chunk },
-        { headers: hubspotHeaders }
-      );
-      console.log(`✅ Added chunk of ${chunk.length} contacts to list ${listId}`);
-      await new Promise(r => setTimeout(r, 500));
-    } catch (error) {
-      console.error(`❌ Failed to add contacts to list ${listId}`, error.message);
-      throw error;
+  let successCount = 0;
+  let failedChunks = [];
+
+  for (const [index, chunk] of chunks.entries()) {
+    let retries = 0;
+    let success = false;
+
+    while (retries < MAX_RETRIES && !success) {
+      try {
+        await axios.post(
+          `https://api.hubapi.com/contacts/v1/lists/${listId}/add`,
+          { vids: chunk },
+          {
+            headers: hubspotHeaders,
+            timeout: 30000
+          }
+        );
+        console.log(`  ✅ Added chunk ${index + 1}/${chunks.length} (${chunk.length} contacts) to list ${listId}`);
+        successCount += chunk.length;
+        success = true;
+        await new Promise(r => setTimeout(r, 500));
+      } catch (error) {
+        retries++;
+        console.error(`  ⚠️ Failed to add chunk ${index + 1} to list ${listId} (attempt ${retries}/${MAX_RETRIES}):`,
+          error.response?.status || error.message);
+
+        if (retries < MAX_RETRIES) {
+          const delay = Math.min(1000 * Math.pow(2, retries - 1), 5000);
+          await new Promise(r => setTimeout(r, delay));
+        } else {
+          failedChunks.push(chunk);
+        }
+      }
     }
   }
+
+  if (failedChunks.length > 0) {
+    const failedCount = failedChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+    console.error(`❌ Failed to add ${failedCount} contacts to list ${listId} after retries`);
+    // Don't throw - return partial success
+  }
+
+  console.log(`  Summary: Successfully added ${successCount}/${contacts.length} contacts to list ${listId}`);
 };
 
 const updateContactProperties = async (contactIds, dateValue, brandValue) => {
@@ -182,44 +249,101 @@ const processSingleCampaign = async (config, daysFilter, modeFilter, usedContact
   const { brand, campaign, primaryListId, secondaryListId, count, domain, date, sendContactListId, lastMarketingEmailSentBrand } = config;
 
   console.log(`\n🚀 Starting campaign: ${campaign} | Brand: ${brand} | Domain: ${domain}`);
-  
-  // Get contacts with enhanced tracking
-  let primaryContacts = await getContactsFromList(primaryListId, count * 2);
-  const primaryBeforeFilter = primaryContacts.length;
-  primaryContacts = primaryContacts.filter(vid => !usedContactsSet.has(vid));
-  const primaryAfterFilter = primaryContacts.length;
-  
-  console.log(`📥 Primary List: ${primaryBeforeFilter} available | ${primaryBeforeFilter - primaryAfterFilter} filtered | ${primaryAfterFilter} remaining`);
+  console.log(`  Target count: ${count} | Used contacts so far: ${usedContactsSet.size}`);
 
+  let primaryContacts = [];
   let secondaryContacts = [];
+  let primaryBeforeFilter = 0;
+  let primaryAfterFilter = 0;
   let secondaryBeforeFilter = 0;
   let secondaryAfterFilter = 0;
-  
-  if (primaryAfterFilter < count && secondaryListId) {
-    secondaryContacts = await getContactsFromList(secondaryListId, (count - primaryAfterFilter) * 2);
-    secondaryBeforeFilter = secondaryContacts.length;
-    secondaryContacts = secondaryContacts.filter(vid => !usedContactsSet.has(vid));
-    secondaryAfterFilter = secondaryContacts.length;
-    console.log(`📥 Secondary List: ${secondaryBeforeFilter} available | ${secondaryBeforeFilter - secondaryAfterFilter} filtered | ${secondaryAfterFilter} remaining`);
+
+  try {
+    // Fetch more contacts than needed to account for filtering
+    const primaryFetchCount = Math.max(count * 3, 500); // Fetch at least 3x or 500 minimum
+    primaryContacts = await getContactsFromList(primaryListId, primaryFetchCount);
+    primaryBeforeFilter = primaryContacts.length;
+
+    if (primaryBeforeFilter === 0) {
+      console.warn(`⚠️ Primary list ${primaryListId} returned no contacts!`);
+    }
+
+    // Filter out used contacts
+    primaryContacts = primaryContacts.filter(vid => !usedContactsSet.has(vid));
+    primaryAfterFilter = primaryContacts.length;
+
+    console.log(`📥 Primary List ${primaryListId}: ${primaryBeforeFilter} fetched | ${primaryBeforeFilter - primaryAfterFilter} already used | ${primaryAfterFilter} available`);
+
+    // If we need more contacts and have a secondary list
+    if (primaryAfterFilter < count && secondaryListId) {
+      const secondaryNeeded = count - primaryAfterFilter;
+      const secondaryFetchCount = Math.max(secondaryNeeded * 3, 500);
+
+      console.log(`  Need ${secondaryNeeded} more contacts, fetching from secondary list...`);
+
+      secondaryContacts = await getContactsFromList(secondaryListId, secondaryFetchCount);
+      secondaryBeforeFilter = secondaryContacts.length;
+
+      if (secondaryBeforeFilter === 0) {
+        console.warn(`⚠️ Secondary list ${secondaryListId} returned no contacts!`);
+      }
+
+      secondaryContacts = secondaryContacts.filter(vid => !usedContactsSet.has(vid));
+      secondaryAfterFilter = secondaryContacts.length;
+
+      console.log(`📥 Secondary List ${secondaryListId}: ${secondaryBeforeFilter} fetched | ${secondaryBeforeFilter - secondaryAfterFilter} already used | ${secondaryAfterFilter} available`);
+    }
+  } catch (error) {
+    console.error(`❌ Error fetching contacts for campaign ${campaign}:`, error.message);
+    // Continue with whatever contacts we have
   }
 
+  // Combine all available contacts
   const allContacts = [...primaryContacts, ...secondaryContacts];
+
+  // Take what we can, up to the requested count
   const selectedContacts = allContacts.slice(0, count);
+
+  // Add selected contacts to used set
   selectedContacts.forEach(vid => usedContactsSet.add(vid));
-  
-  const fulfillmentPercentage = Math.round((selectedContacts.length / count) * 100);
-  console.log(`✂️ Final Selection: ${selectedContacts.length} of ${count} requested (${fulfillmentPercentage}%)`);
+
+  const fulfillmentPercentage = count > 0 ? Math.round((selectedContacts.length / count) * 100) : 0;
+
+  if (selectedContacts.length === 0) {
+    console.error(`❌ NO CONTACTS SELECTED for ${campaign}!`);
+    console.error(`  Primary: ${primaryBeforeFilter} fetched, ${primaryAfterFilter} after filter`);
+    console.error(`  Secondary: ${secondaryBeforeFilter} fetched, ${secondaryAfterFilter} after filter`);
+    console.error(`  Total available: ${allContacts.length}`);
+    console.error(`  Requested: ${count}`);
+  } else {
+    console.log(`✂️ Final Selection: ${selectedContacts.length} of ${count} requested (${fulfillmentPercentage}%)`);
+  }
 
   const listName = `${brand} - ${campaign} - ${domain} - ${getFormattedDate(date)}`;
 
-  const [newList] = await Promise.all([
-    createHubSpotList(listName),
-    selectedContacts.length ? addContactsToList(sendContactListId, selectedContacts) : Promise.resolve()
-  ]);
+  // Always create the list even if empty (for tracking purposes)
+  const newList = await createHubSpotList(listName);
 
-  if (selectedContacts.length) {
-    await addContactsToList(newList.listId, selectedContacts);
-    await updateContactProperties(selectedContacts, date, lastMarketingEmailSentBrand);
+  if (selectedContacts.length > 0) {
+    console.log(`  Adding ${selectedContacts.length} contacts to lists...`);
+
+    try {
+      // Add to send contact list if specified
+      if (sendContactListId) {
+        await addContactsToList(sendContactListId, selectedContacts);
+      }
+
+      // Add to the newly created list
+      await addContactsToList(newList.listId, selectedContacts);
+
+      // Update contact properties
+      await updateContactProperties(selectedContacts, date, lastMarketingEmailSentBrand);
+    } catch (error) {
+      console.error(`⚠️ Error adding contacts to lists for ${campaign}:`, error.message);
+      // Continue even if there's an error adding contacts
+    }
+  } else {
+    console.warn(`⚠️ Created empty list: ${listName} (no contacts available)`);
   }
 
   const createdList = await CreatedList.create({
